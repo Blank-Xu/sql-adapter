@@ -7,9 +7,9 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 ---
 
-sql-adapter is an Adapter for [Casbin V2](https://github.com/casbin/casbin/v2). 
+sql-adapter is a database/sql Adapter for [Casbin V2](https://github.com/casbin/casbin/v2). 
 
-With this library, Casbin can load policy lines from supported databases or save policy lines.
+With this library, Casbin can load policy lines or save policy lines from supported databases.
 
 
 ## Tested Databases
