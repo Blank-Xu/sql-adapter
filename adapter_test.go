@@ -207,7 +207,7 @@ func testSQL(t *testing.T, db *sql.DB, tableName string) {
 	logSQLErr("selectRows sqlSelectAll")
 	for idx, record := range records {
 		line := lines[idx]
-		if !equalValue(record, line) {
+		if !equalValue(*record, line) {
 			t.Fatalf("selectRows records test not equal, query record: %+v, need record: %+v", record, line)
 		}
 	}
@@ -217,7 +217,7 @@ func testSQL(t *testing.T, db *sql.DB, tableName string) {
 	i := 3
 	for _, record := range records {
 		line := lines[i]
-		if !equalValue(record, line) {
+		if !equalValue(*record, line) {
 			t.Fatalf("selectWhereIn records test not equal, query record: %+v, need record: %+v", record, line)
 		}
 		i++
