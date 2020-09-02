@@ -15,22 +15,19 @@
 package sqladapter
 
 // for Oracle
-var (
-	sqlPlaceHolder = []byte(":arg")
-)
+var sqlPlaceHolder = []byte(":arg")
 
 const (
 	sqlAND = " AND "
 
-	sqlCreateTable = `
-CREATE TABLE %s(
-	P_TYPE NVARCHAR2(32) DEFAULT '' NOT NULL,
-    V0     NVARCHAR2(255) DEFAULT '' NOT NULL,
-    V1     NVARCHAR2(255) DEFAULT '' NOT NULL,
-    V2     NVARCHAR2(255),
-    V3     NVARCHAR2(255),
-    V4     NVARCHAR2(255),
-    V5     NVARCHAR2(255)
+	sqlCreateTable = `CREATE TABLE %s(
+P_TYPE NVARCHAR2(32) DEFAULT '' NOT NULL,
+V0     NVARCHAR2(255) DEFAULT '' NOT NULL,
+V1     NVARCHAR2(255) DEFAULT '' NOT NULL,
+V2     NVARCHAR2(255),
+V3     NVARCHAR2(255),
+V4     NVARCHAR2(255),
+V5     NVARCHAR2(255)
 )`
 	sqlCreateIndex = `CREATE INDEX IDX_%[1]s ON %[1]s (P_TYPE, V0, V1)`
 

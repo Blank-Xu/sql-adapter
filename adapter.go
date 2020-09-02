@@ -266,10 +266,9 @@ func (p *Adapter) selectRows(query string, args ...string) (lines []*CasbinRule,
 	}
 
 	for rows.Next() {
-		rule := CasbinRule{}
+		var rule CasbinRule
 
-		err = rows.Scan(&rule.PType, &rule.V0, &rule.V1, &rule.V2, &rule.V3, &rule.V4, &rule.V5)
-		if err != nil {
+		if err = rows.Scan(&rule.PType, &rule.V0, &rule.V1, &rule.V2, &rule.V3, &rule.V4, &rule.V5); err != nil {
 			return nil, err
 		}
 
@@ -366,7 +365,7 @@ func (p *Adapter) LoadPolicy(model model.Model) error {
 
 // SavePolicy  save policy rules to the storage.
 func (p *Adapter) SavePolicy(model model.Model) error {
-	args := make([][]interface{}, 0, 32)
+	args := make([][]interface{}, 0, 64)
 
 	for ptype, ast := range model["p"] {
 		for _, rule := range ast.Policy {

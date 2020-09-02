@@ -148,7 +148,7 @@ func testTableName(t *testing.T, db *sql.DB) {
 
 func testSQL(t *testing.T, db *sql.DB, tableName string) {
 	var err error
-	logSQLErr := func(action string) {
+	logErr := func(action string) {
 		if err != nil {
 			t.Fatalf("%s test failed, err: %v", action, err)
 		}
@@ -169,10 +169,10 @@ func testSQL(t *testing.T, db *sql.DB, tableName string) {
 
 	var a *Adapter
 	a, err = NewAdapter(db, tableName)
-	logSQLErr("NewAdapter")
+	logErr("NewAdapter")
 
 	// createTable test has passed when adapter create
-	// logSQLErr("createTable",  a.createTable())
+	// logErr("createTable",  a.createTable())
 
 	if b := a.isTableExist(); b == false {
 		t.Fatal("isTableExist test failed")
@@ -193,18 +193,18 @@ func testSQL(t *testing.T, db *sql.DB, tableName string) {
 	}
 
 	err = a.truncateAndInsertRows(rules)
-	logSQLErr("truncateAndInsertRows")
+	logErr("truncateAndInsertRows")
 
 	err = a.deleteRows(string(a.sqlDeleteByArgs), "g")
-	logSQLErr("deleteRows sqlDeleteByArgs g")
+	logErr("deleteRows sqlDeleteByArgs g")
 
 	err = a.deleteRows(a.sqlDeleteAll)
-	logSQLErr("deleteRows sqlDeleteAll")
+	logErr("deleteRows sqlDeleteAll")
 
 	_ = a.truncateAndInsertRows(rules)
 
 	records, err := a.selectRows(a.sqlSelectAll)
-	logSQLErr("selectRows sqlSelectAll")
+	logErr("selectRows sqlSelectAll")
 	for idx, record := range records {
 		line := lines[idx]
 		if !equalValue(*record, line) {
@@ -213,7 +213,7 @@ func testSQL(t *testing.T, db *sql.DB, tableName string) {
 	}
 
 	records, err = a.selectWhereIn(&filter)
-	logSQLErr("selectWhereIn")
+	logErr("selectWhereIn")
 	i := 3
 	for _, record := range records {
 		line := lines[i]
@@ -224,7 +224,7 @@ func testSQL(t *testing.T, db *sql.DB, tableName string) {
 	}
 
 	err = a.truncateTable()
-	logSQLErr("truncateTable")
+	logErr("truncateTable")
 }
 
 func initPolicy(t *testing.T, db *sql.DB, tableName string) {
