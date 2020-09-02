@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 ---
 
-sql-adapter is a database/sql Adapter for [Casbin V2](https://github.com/casbin/casbin/v2). 
+sql-adapter is a `database/sql` Adapter for [Casbin V2](https://github.com/casbin/casbin). 
 
 With this library, Casbin can load policy lines or save policy lines from supported databases.
 
@@ -15,10 +15,10 @@ With this library, Casbin can load policy lines or save policy lines from suppor
 ## Tested Databases
 ### `master` branch
 - SQLite3: [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3)
-- Mysql(v5.5): [github.com/go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
+- MySQL(v5.5): [github.com/go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
 - MariaDB(v10.2): [github.com/go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
-- Postgres(v9.6): [github.com/lib/pq](https://github.com/lib/pq)
-- SqlServer(v2008R2-SP3): [github.com/denisenkom/go-mssqldb](https://github.com/denisenkom/go-mssqldb)
+- PostgreSQL(v9.6): [github.com/lib/pq](https://github.com/lib/pq)
+- SQL Server(v2008R2-SP3): [github.com/denisenkom/go-mssqldb](https://github.com/denisenkom/go-mssqldb)
 
 ### `oracle` branch
 - Oracle(v11.2): [github.com/mattn/go-oci8](https://github.com/mattn/go-oci8)
@@ -30,7 +30,7 @@ With this library, Casbin can load policy lines or save policy lines from suppor
 
 
 ## Simple Examples
-### Sqlite3
+### SQLite3
 ```go
 package main
 
@@ -93,7 +93,7 @@ func main() {
 ```
 
 
-### Mysql
+### MySQL
 
 ```go
 package main

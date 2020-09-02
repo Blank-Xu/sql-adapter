@@ -265,7 +265,7 @@ var queryFunc = func(db *sql.DB, query string, args ...string) ([]*CasbinRule, e
 	}
 
 	for rows.Next() {
-		rule := CasbinRule{}
+		var rule CasbinRule
 
 		err = rows.Scan(&rule.PType, &rule.V0, &rule.V1, &rule.V2, &rule.V3, &rule.V4, &rule.V5)
 		if err != nil {
@@ -291,7 +291,10 @@ func (p *Adapter) selectRows(query string, args ...string) ([]*CasbinRule, error
 
 // selectWhereIn  select eligible data by filter from the table.
 func (p *Adapter) selectWhereIn(filter *Filter) (lines []*CasbinRule, err error) {
-	var sqlBuf bytes.Buffer
+	var (
+		sqlBuf bytes.Buffer
+		buf    bytes.Buffer
+	)
 
 	sqlBuf.Grow(64)
 	sqlBuf.WriteString(p.sqlSelectWhere)
@@ -326,8 +329,6 @@ func (p *Adapter) selectWhereIn(filter *Filter) (lines []*CasbinRule, err error)
 			sqlBuf.WriteString(" = ?")
 			args = append(args, col.arg[0])
 		} else {
-			var buf bytes.Buffer
-
 			buf.Grow(l * 2)
 			for i := 0; i < l; i++ {
 				buf.WriteString("?,")
@@ -339,6 +340,8 @@ func (p *Adapter) selectWhereIn(filter *Filter) (lines []*CasbinRule, err error)
 			sqlBuf.WriteByte(')')
 
 			args = append(args, col.arg...)
+
+			buf.Reset()
 		}
 	}
 
@@ -498,15 +501,16 @@ func (Adapter) loadPolicyLine(line *CasbinRule, model model.Model) {
 
 // genArgs  generate args from ptype and rule.
 func (Adapter) genArgs(ptype string, rule []string) []interface{} {
-	args := make([]interface{}, 7)
+	const l = 7
 
+	args := make([]interface{}, l)
 	args[0] = ptype
 
-	for idx, arg := range rule {
-		args[idx+1] = arg
+	for idx := range rule {
+		args[idx+1] = rule[idx]
 	}
 
-	for idx := len(rule) + 1; idx < 7; idx++ {
+	for idx := len(rule) + 1; idx < l; idx++ {
 		args[idx] = ""
 	}
 
