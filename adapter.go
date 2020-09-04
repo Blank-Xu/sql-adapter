@@ -16,6 +16,7 @@ package sqladapter
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -45,6 +46,7 @@ type CasbinRule struct {
 // It can load policy lines from connected database or save policy lines.
 type Adapter struct {
 	db         *sql.DB
+	ctx        context.Context
 	driverName string
 	tableName  string
 
@@ -77,6 +79,13 @@ type Filter struct {
 // db should connected to database and controlled by user.
 // If tableName == "", the Adapter will automatically create a table named "casbin_rule".
 func NewAdapter(db *sql.DB, driverName, tableName string) (*Adapter, error) {
+	return NewAdapterContext(context.Background(), db, driverName, tableName)
+}
+
+// NewAdapterContext  the constructor for Adapter.
+// db should connected to database and controlled by user.
+// If tableName == "", the Adapter will automatically create a table named "casbin_rule".
+func NewAdapterContext(ctx context.Context, db *sql.DB, driverName, tableName string) (*Adapter, error) {
 	if db == nil {
 		return nil, errors.New("db is nil")
 	}
@@ -89,7 +98,7 @@ func NewAdapter(db *sql.DB, driverName, tableName string) (*Adapter, error) {
 	}
 
 	// check db connecting
-	err := db.Ping()
+	err := db.PingContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -100,6 +109,7 @@ func NewAdapter(db *sql.DB, driverName, tableName string) (*Adapter, error) {
 
 	adapter := Adapter{
 		db:         db,
+		ctx:        ctx,
 		driverName: driverName,
 		tableName:  tableName,
 	}
@@ -121,6 +131,7 @@ func (p *Adapter) genSQL() {
 	p.sqlPlaceHolder = []byte(sqlPlaceHolder)
 	p.sqlCreateTable = fmt.Sprintf(sqlCreateTable, p.tableName)
 	p.sqlTruncateTable = fmt.Sprintf(sqlTruncateTable, p.tableName)
+
 	p.sqlIsTableExist = fmt.Sprintf(sqlIsTableExist, p.tableName)
 
 	p.sqlInsertRow = fmt.Sprintf(sqlInsertRow, p.tableName)
@@ -171,21 +182,21 @@ func (p *Adapter) sqlRebind(query string) string {
 
 // createTable  create a not exists table.
 func (p *Adapter) createTable() error {
-	_, err := p.db.Exec(p.sqlCreateTable)
+	_, err := p.db.ExecContext(p.ctx, p.sqlCreateTable)
 
 	return err
 }
 
 // truncateTable  clear the table.
 func (p *Adapter) truncateTable() error {
-	_, err := p.db.Exec(p.sqlTruncateTable)
+	_, err := p.db.ExecContext(p.ctx, p.sqlTruncateTable)
 
 	return err
 }
 
 // isTableExist  check the table exists.
 func (p *Adapter) isTableExist() bool {
-	_, err := p.db.Exec(p.sqlIsTableExist)
+	_, err := p.db.ExecContext(p.ctx, p.sqlIsTableExist)
 
 	return err == nil
 }
@@ -194,7 +205,7 @@ func (p *Adapter) isTableExist() bool {
 func (p *Adapter) deleteRows(query string, args ...interface{}) error {
 	query = p.sqlRebind(query)
 
-	_, err := p.db.Exec(query, args...)
+	_, err := p.db.ExecContext(p.ctx, query, args...)
 
 	return err
 }
@@ -205,26 +216,27 @@ func (p *Adapter) truncateAndInsertRows(rules [][]interface{}) (err error) {
 		return
 	}
 
-	tx, err := p.db.Begin()
+	tx, err := p.db.BeginTx(p.ctx, nil)
 	if err != nil {
 		return
 	}
 
 	var action string
+	var stmt *sql.Stmt
 	// if _, err = tx.Exec(p.sqlDeleteAll); err != nil {
 	// 	action = "delete all"
 	// 	goto ROLLBACK
 	// }
 
-	stmt, err := tx.Prepare(p.sqlInsertRow)
+	stmt, err = tx.PrepareContext(p.ctx, p.sqlInsertRow)
 	if err != nil {
-		action = "prepare"
+		action = "prepare context"
 		goto ROLLBACK
 	}
 
 	for _, rule := range rules {
-		if _, err = stmt.Exec(rule...); err != nil {
-			action = "stmt exec"
+		if _, err = stmt.ExecContext(p.ctx, rule...); err != nil {
+			action = "stmt exec context"
 			goto ROLLBACK
 		}
 	}
@@ -251,7 +263,7 @@ ROLLBACK:
 }
 
 // queryFunc  define func for query
-var queryFunc = func(db *sql.DB, query string, args ...string) ([]*CasbinRule, error) {
+var queryFunc = func(ctx context.Context, db *sql.DB, query string, args ...string) ([]*CasbinRule, error) {
 	params := make([]interface{}, len(args))
 	for idx := range args {
 		params[idx] = args[idx]
@@ -259,7 +271,7 @@ var queryFunc = func(db *sql.DB, query string, args ...string) ([]*CasbinRule, e
 
 	lines := make([]*CasbinRule, 0, 64)
 
-	rows, err := db.Query(query, params...)
+	rows, err := db.QueryContext(ctx, query, params...)
 	if err != nil {
 		return nil, err
 	}
@@ -281,12 +293,12 @@ var queryFunc = func(db *sql.DB, query string, args ...string) ([]*CasbinRule, e
 // selectRows  select eligible data by args from the table.
 func (p *Adapter) selectRows(query string, args ...string) ([]*CasbinRule, error) {
 	if len(args) == 0 {
-		return queryFunc(p.db, query)
+		return queryFunc(p.ctx, p.db, query)
 	}
 
 	query = p.sqlRebind(query)
 
-	return queryFunc(p.db, query, args...)
+	return queryFunc(p.ctx, p.db, query, args...)
 }
 
 // selectWhereIn  select eligible data by filter from the table.
@@ -387,7 +399,7 @@ func (p *Adapter) SavePolicy(model model.Model) error {
 func (p *Adapter) AddPolicy(sec string, ptype string, rule []string) error {
 	args := p.genArgs(ptype, rule)
 
-	_, err := p.db.Exec(p.sqlInsertRow, args...)
+	_, err := p.db.ExecContext(p.ctx, p.sqlInsertRow, args...)
 
 	return err
 }
