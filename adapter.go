@@ -27,8 +27,13 @@ import (
 	"github.com/casbin/casbin/v2/persist"
 )
 
-// defaultTableName  if tableName == "", the Adapter will use this default table name.
-const defaultTableName = "casbin_rule"
+const (
+	// defaultTableName  if tableName == "", the Adapter will use this default table name.
+	defaultTableName = "casbin_rule"
+
+	// maxParamLength  .
+	maxParamLength = 7
+)
 
 // CasbinRule  defines the casbin rule model.
 // It used for save or load policy lines from connected database.
@@ -52,7 +57,7 @@ type Adapter struct {
 
 	isFiltered bool
 
-	sqlPlaceHolder   []byte
+	sqlPlaceHolder   string
 	sqlCreateTable   string
 	sqlTruncateTable string
 	sqlIsTableExist  string
@@ -128,7 +133,7 @@ func NewAdapterContext(ctx context.Context, db *sql.DB, driverName, tableName st
 
 // genSQL  generate sql based on db driver name.
 func (p *Adapter) genSQL() {
-	p.sqlPlaceHolder = []byte(sqlPlaceHolder)
+	p.sqlPlaceHolder = sqlPlaceHolder
 	p.sqlCreateTable = fmt.Sprintf(sqlCreateTable, p.tableName)
 	p.sqlTruncateTable = fmt.Sprintf(sqlTruncateTable, p.tableName)
 
@@ -143,7 +148,7 @@ func (p *Adapter) genSQL() {
 
 	switch p.driverName {
 	case "postgres", "pgx", "pq-timeouts", "cloudsqlpostgres":
-		p.sqlPlaceHolder = []byte(sqlPlaceHolderPostgres)
+		p.sqlPlaceHolder = sqlPlaceHolderPostgres
 		p.sqlCreateTable = fmt.Sprintf(sqlCreateTablePostgres, p.tableName)
 		p.sqlInsertRow = fmt.Sprintf(sqlInsertRowPostgres, p.tableName)
 	case "mysql":
@@ -152,32 +157,37 @@ func (p *Adapter) genSQL() {
 		p.sqlCreateTable = fmt.Sprintf(sqlCreateTableSqlite3, p.tableName)
 		p.sqlTruncateTable = fmt.Sprintf(sqlTruncateTableSqlite3, p.tableName)
 	case "sqlserver":
-		p.sqlPlaceHolder = []byte(sqlPlaceHolderSqlserver)
+		p.sqlPlaceHolder = sqlPlaceHolderSqlserver
 		p.sqlCreateTable = fmt.Sprintf(sqlCreateTableSqlserver, p.tableName)
 		p.sqlInsertRow = fmt.Sprintf(sqlInsertRowSqlserver, p.tableName)
 	}
 }
 
 func (p *Adapter) sqlRebind(query string) string {
-	if len(p.sqlPlaceHolder) == 1 && p.sqlPlaceHolder[0] == '?' {
+	if p.sqlPlaceHolder == sqlPlaceHolder {
 		return query
 	}
 
-	rqb := make([]byte, 0, len(query)+10)
+	var idx, num int
 
-	var i, j int
+	result := make([]byte, 0, len(query)+10)
 
-	for i = strings.Index(query, "?"); i != -1; i = strings.Index(query, "?") {
-		rqb = append(rqb, query[:i]...)
-		rqb = append(rqb, p.sqlPlaceHolder...)
+	for {
+		idx = strings.Index(query, sqlPlaceHolder)
+		if idx == -1 {
+			break
+		}
 
-		j++
-		rqb = strconv.AppendInt(rqb, int64(j), 10)
+		num++
 
-		query = query[i+1:]
+		result = append(result, query[:idx]...)
+		result = append(result, p.sqlPlaceHolder...)
+		result = strconv.AppendInt(result, int64(num), 10)
+
+		query = query[idx+1:]
 	}
 
-	return string(append(rqb, query...))
+	return string(append(result, query...))
 }
 
 // createTable  create a not exists table.
@@ -313,7 +323,7 @@ func (p *Adapter) selectWhereIn(filter *Filter) (lines []*CasbinRule, err error)
 
 	args := make([]string, 0, 4)
 
-	for _, col := range [7]struct {
+	for _, col := range [maxParamLength]struct {
 		name string
 		arg  []string
 	}{
@@ -513,16 +523,14 @@ func (Adapter) loadPolicyLine(line *CasbinRule, model model.Model) {
 
 // genArgs  generate args from ptype and rule.
 func (Adapter) genArgs(ptype string, rule []string) []interface{} {
-	const l = 7
-
-	args := make([]interface{}, l)
+	args := make([]interface{}, maxParamLength)
 	args[0] = ptype
 
 	for idx := range rule {
 		args[idx+1] = rule[idx]
 	}
 
-	for idx := len(rule) + 1; idx < l; idx++ {
+	for idx := len(rule) + 1; idx < maxParamLength; idx++ {
 		args[idx] = ""
 	}
 
