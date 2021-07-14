@@ -20,6 +20,8 @@ import (
 	"testing"
 
 	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/util"
+
 	// _ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -93,6 +95,18 @@ func TestAdapters(t *testing.T) {
 		t.Log("---------- testFilteredPolicy start")
 		testFilteredPolicy(t, db, key, "sqladapter_filtered_policy")
 		t.Log("---------- testFilteredPolicy finished")
+
+		t.Log("---------- testUpdatePolicy start")
+		testUpdatePolicy(t, db, key, "sqladapter_filtered_policy")
+		t.Log("---------- testUpdatePolicy finished")
+
+		t.Log("---------- testUpdatePolicies start")
+		testUpdatePolicies(t, db, key, "sqladapter_filtered_policy")
+		t.Log("---------- testUpdatePolicies finished")
+
+		t.Log("---------- testUpdateFilteredPolicies start")
+		testUpdateFilteredPolicies(t, db, key, "sqladapter_filtered_policy")
+		t.Log("---------- testUpdateFilteredPolicies finished")
 	}
 }
 
@@ -142,6 +156,9 @@ func testSQL(t *testing.T, db *sql.DB, driverName, tableName string) {
 	}
 
 	err = a.truncateAndInsertRows(rules)
+	logErr("truncateAndInsertRows")
+
+	err = a.deleteAllAndInsertRows(rules)
 	logErr("truncateAndInsertRows")
 
 	err = a.deleteRows(a.sqlDeleteByArgs, "g")
@@ -253,6 +270,14 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 	// This is still the original policy.
 	testGetPolicy(t, e, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}})
 
+	_, err = e.AddPolicies([][]string{{"alice_1", "data_1", "read_1"}, {"bob_1", "data_1", "write_1"}})
+	logErr("AddPolicies1")
+	// Reload the policy from the storage to see the effect.
+	err = e.LoadPolicy()
+	logErr("LoadPolicy2")
+	// This is still the original policy.
+	testGetPolicy(t, e, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}})
+
 	// Now we enable the AutoSave.
 	e.EnableAutoSave(true)
 
@@ -262,15 +287,30 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 	logErr("AddPolicy2")
 	// Reload the policy from the storage to see the effect.
 	err = e.LoadPolicy()
-	logErr("LoadPolicy2")
+	logErr("LoadPolicy3")
 	// The policy has a new rule: {"alice", "data1", "write"}.
+	testGetPolicy(t, e, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}, {"alice", "data1", "write"}})
+
+	_, err = e.AddPolicies([][]string{{"alice_2", "data_2", "read_2"}, {"bob_2", "data_2", "write_2"}})
+	logErr("AddPolicies2")
+	// Reload the policy from the storage to see the effect.
+	err = e.LoadPolicy()
+	logErr("LoadPolicy4")
+	// This is still the original policy.
+	testGetPolicy(t, e, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}, {"alice", "data1", "write"},
+		{"alice_2", "data_2", "read_2"}, {"bob_2", "data_2", "write_2"}})
+
+	_, err = e.RemovePolicies([][]string{{"alice_2", "data_2", "read_2"}, {"bob_2", "data_2", "write_2"}})
+	logErr("RemovePolicies")
+	err = e.LoadPolicy()
+	logErr("LoadPolicy5")
 	testGetPolicy(t, e, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}, {"alice", "data1", "write"}})
 
 	// Remove the added rule.
 	_, err = e.RemovePolicy("alice", "data1", "write")
 	logErr("RemovePolicy")
 	err = e.LoadPolicy()
-	logErr("LoadPolicy3")
+	logErr("LoadPolicy6")
 	testGetPolicy(t, e, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}})
 
 	// Remove "data2_admin" related policy rules via a filter.
@@ -278,7 +318,7 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 	_, err = e.RemoveFilteredPolicy(0, "data2_admin")
 	logErr("RemoveFilteredPolicy")
 	err = e.LoadPolicy()
-	logErr("LoadPolicy4")
+	logErr("LoadPolicy7")
 	testGetPolicy(t, e, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}})
 }
 
@@ -331,6 +371,46 @@ func testFilteredPolicy(t *testing.T, db *sql.DB, driverName, tableName string) 
 	testGetPolicy(t, e, [][]string{{"bob", "data1", "write", "test1", "test2", "test3"}})
 }
 
+func testUpdatePolicy(t *testing.T, db *sql.DB, driverName, tableName string) {
+	// Initialize some policy in DB.
+	initPolicy(t, db, driverName, tableName)
+
+	a, _ := NewAdapter(db, driverName, tableName)
+	e, _ := casbin.NewEnforcer(rbacModelFile, a)
+
+	e.EnableAutoSave(true)
+	e.UpdatePolicy([]string{"alice", "data1", "read"}, []string{"alice", "data1", "write"})
+	e.LoadPolicy()
+	testGetPolicy(t, e, [][]string{{"alice", "data1", "write"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}})
+}
+
+func testUpdatePolicies(t *testing.T, db *sql.DB, driverName, tableName string) {
+	// Initialize some policy in DB.
+	initPolicy(t, db, driverName, tableName)
+
+	a, _ := NewAdapter(db, driverName, tableName)
+	e, _ := casbin.NewEnforcer(rbacModelFile, a)
+
+	e.EnableAutoSave(true)
+	e.UpdatePolicies([][]string{{"alice", "data1", "write"}, {"bob", "data2", "write"}}, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "read"}})
+	e.LoadPolicy()
+	testGetPolicy(t, e, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "read"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}})
+}
+
+func testUpdateFilteredPolicies(t *testing.T, db *sql.DB, driverName, tableName string) {
+	// Initialize some policy in DB.
+	initPolicy(t, db, driverName, tableName)
+
+	a, _ := NewAdapter(db, driverName, tableName)
+	e, _ := casbin.NewEnforcer(rbacModelFile, a)
+
+	e.EnableAutoSave(true)
+	e.UpdateFilteredPolicies([][]string{{"alice", "data1", "write"}}, 0, "alice", "data1", "read")
+	e.UpdateFilteredPolicies([][]string{{"bob", "data2", "read"}}, 0, "bob", "data2", "write")
+	e.LoadPolicy()
+	testGetPolicyWithoutOrder(t, e, [][]string{{"alice", "data1", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}, {"bob", "data2", "read"}})
+}
+
 func testGetPolicy(t *testing.T, e *casbin.Enforcer, res [][]string) {
 	t.Helper()
 	myRes := e.GetPolicy()
@@ -345,8 +425,52 @@ func testGetPolicy(t *testing.T, e *casbin.Enforcer, res [][]string) {
 	for _, record := range res {
 		key := strings.Join(record, ",")
 		if _, ok := m[key]; !ok {
-			t.Error("Policy: ", myRes, ", supposed to be ", res)
+			t.Error("Policy: \n", myRes, ", supposed to be \n", res)
 			break
 		}
 	}
+}
+
+func testGetPolicyWithoutOrder(t *testing.T, e *casbin.Enforcer, res [][]string) {
+	myRes := e.GetPolicy()
+	// log.Print("Policy: \n", myRes)
+
+	if !arrayEqualsWithoutOrder(myRes, res) {
+		t.Error("Policy: \n", myRes, ", supposed to be \n", res)
+	}
+}
+
+func arrayEqualsWithoutOrder(a [][]string, b [][]string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	mapA := make(map[int]string)
+	mapB := make(map[int]string)
+	order := make(map[int]struct{})
+	l := len(a)
+
+	for i := 0; i < l; i++ {
+		mapA[i] = util.ArrayToString(a[i])
+		mapB[i] = util.ArrayToString(b[i])
+	}
+
+	for i := 0; i < l; i++ {
+		for j := 0; j < l; j++ {
+			if _, ok := order[j]; ok {
+				if j == l-1 {
+					return false
+				} else {
+					continue
+				}
+			}
+			if mapA[i] == mapB[j] {
+				order[j] = struct{}{}
+				break
+			} else if j == l-1 {
+				return false
+			}
+		}
+	}
+	return true
 }

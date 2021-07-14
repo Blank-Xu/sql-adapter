@@ -27,12 +27,14 @@ CREATE TABLE %[1]s(
     v4     VARCHAR(255),
     v5     VARCHAR(255)
 );
-CREATE INDEX idx_%[1]s ON %[1]s (p_type, v0, v1);`
+CREATE INDEX idx_%[1]s ON %[1]s (p_type,v0,v1);`
 	sqlTruncateTable = "TRUNCATE TABLE %s"
 	sqlIsTableExist  = "SELECT 1 FROM %s"
-	sqlInsertRow     = "INSERT INTO %s (p_type, v0, v1, v2, v3, v4, v5) VALUES (?, ?, ?, ?, ?, ?, ?)"
+	sqlInsertRow     = "INSERT INTO %s (p_type,v0,v1,v2,v3,v4,v5) VALUES (?,?,?,?,?,?,?)"
+	sqlUpdateRow     = "UPDATE %s SET p_type=?,v0=?,v1=?,v2=?,v3=?,v4=?,v5=? WHERE p_type=? AND v0=? AND v1=? AND v2=? AND v3=? AND v4=? AND v5=?"
 	sqlDeleteAll     = "DELETE FROM %s"
-	sqlDeleteByArgs  = "DELETE FROM %s WHERE p_type = ?"
+	sqlDeleteRow     = "DELETE FROM %s WHERE p_type=? AND v0=? AND v1=? AND v2=? AND v3=? AND v4=? AND v5=?"
+	sqlDeleteByArgs  = "DELETE FROM %s WHERE p_type=?"
 	sqlSelectAll     = "SELECT p_type,v0,v1,v2,v3,v4,v5 FROM %s"
 	sqlSelectWhere   = "SELECT p_type,v0,v1,v2,v3,v4,v5 FROM %s WHERE "
 )
@@ -63,7 +65,7 @@ CREATE TABLE IF NOT EXISTS %[1]s(
     CHECK (TYPEOF("v5") = "text" AND
            LENGTH("v5") <= 255)
 );
-CREATE INDEX IF NOT EXISTS idx_%[1]s ON %[1]s (p_type, v0, v1);`
+CREATE INDEX IF NOT EXISTS idx_%[1]s ON %[1]s (p_type,v0,v1);`
 	sqlTruncateTableSqlite3 = "DROP TABLE IF EXISTS %[1]s;" + sqlCreateTableSqlite3
 )
 
@@ -78,7 +80,7 @@ CREATE TABLE IF NOT EXISTS %[1]s(
     v3     VARCHAR(255) DEFAULT '' NOT NULL,
     v4     VARCHAR(255) DEFAULT '' NOT NULL,
     v5     VARCHAR(255) DEFAULT '' NOT NULL,
-    INDEX idx_%[1]s (p_type, v0, v1)
+    INDEX idx_%[1]s (p_type,v0,v1)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;`
 )
 
@@ -95,8 +97,10 @@ CREATE TABLE IF NOT EXISTS %[1]s(
     v4     VARCHAR(255) DEFAULT '' NOT NULL,
     v5     VARCHAR(255) DEFAULT '' NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_%[1]s ON %[1]s (p_type, v0, v1);`
-	sqlInsertRowPostgres = "INSERT INTO %s (p_type, v0, v1, v2, v3, v4, v5) VALUES ($1, $2, $3, $4, $5, $6, $7)"
+CREATE INDEX IF NOT EXISTS idx_%[1]s ON %[1]s (p_type,v0,v1);`
+	sqlInsertRowPostgres = "INSERT INTO %s (p_type,v0,v1,v2,v3,v4,v5) VALUES ($1,$2,$3,$4,$5,$6,$7)"
+	sqlUpdateRowPostgres = "UPDATE %s SET p_type=$1,v0=$2,v1=$3,v2=$4,v3=$5,v4=$6,v5=$7 WHERE p_type=$8 AND v0=$9 AND v1=$10 AND v2=$11 AND v3=$12 AND v4=$13 AND v5=$14"
+	sqlDeleteRowPostgres = "DELETE FROM %s WHERE p_type=$1 AND v0=$2 AND v1=$3 AND v2=$4 AND v3=$5 AND v4=$6 AND v5=$7"
 )
 
 // for Sqlserver
@@ -112,6 +116,8 @@ CREATE TABLE %[1]s(
     v4     NVARCHAR(255) DEFAULT '' NOT NULL,
     v5     NVARCHAR(255) DEFAULT '' NOT NULL
 );
-CREATE INDEX idx_%[1]s ON %[1]s (p_type, v0, v1);`
-	sqlInsertRowSqlserver = "INSERT INTO %s (p_type, v0, v1, v2, v3, v4, v5) VALUES (@p1, @p2, @p3, @p4, @p5, @p6, @p7)"
+CREATE INDEX idx_%[1]s ON %[1]s (p_type,v0,v1);`
+	sqlInsertRowSqlserver = "INSERT INTO %s (p_type,v0,v1,v2,v3,v4,v5) VALUES (@p1,@p2,@p3,@p4,@p5,@p6,@p7)"
+	sqlUpdateRowSqlserver = "UPDATE %s SET p_type=@p1,v0=@p2,v1=@p3,v2=@p4,v3=@p5,v4=@p6,v5=@p7 WHERE p_type=@p8 AND v0=@p9 AND v1=@p10 AND v2=@p11 AND v3=@p12 AND v4=@p13 AND v5=@p14"
+	sqlDeleteRowSqlserver = "DELETE FROM %s WHERE p_type=@p1 AND v0=@p2 AND v1=@p3 AND v2=@p4 AND v3=@p5 AND v4=@p6 AND v5=@p7"
 )
