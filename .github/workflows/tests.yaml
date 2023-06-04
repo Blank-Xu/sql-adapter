@@ -1,0 +1,89 @@
+name: Tests
+
+on: [push, pull_request]
+
+env:
+  TEST_DATABASE_NAME: sqladapter_test
+  TEST_DATABASE_USER: blank
+  TEST_DATABASE_PASSWORD: Sql-adapter_test
+
+jobs:
+  test-all:
+    name: test-all
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+        go:
+          - '1.20'
+          - '1.19'
+          - '1.18'
+        mysql:
+          - '8.0'
+        postgres:
+          - '15'
+        sqlserver:
+          - 'latest'
+
+    runs-on: ${{ matrix.os }}
+
+    services:
+      mysql:
+        image: mysql:${{ matrix.mysql }}
+        env:
+          MYSQL_DATABASE: ${{ env.TEST_DATABASE_NAME }}
+          MYSQL_ROOT_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
+          MYSQL_USER: ${{ env.TEST_DATABASE_USER }}
+          MYSQL_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
+        ports:
+          - 3306:3306
+      
+      postgres:
+        image: postgres:${{ matrix.postgres }}
+        env:
+          POSTGRES_DB: ${{ env.TEST_DATABASE_NAME }}
+          POSTGRES_USER: ${{ env.TEST_DATABASE_USER }}
+          POSTGRES_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
+        ports:
+          - 5432:5432
+      
+      sqlserver:
+        image: mcmoe/mssqldocker:${{ matrix.sqlserver }}
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_DB: ${{ env.TEST_DATABASE_NAME }}
+          SA_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
+          MSSQL_USER: ${{ env.TEST_DATABASE_USER }}
+          MSSQL_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
+        ports:
+          - 1433:1433
+
+    steps:
+      - name: 01_Checkout_Code
+        uses: actions/checkout@v3
+
+      - name: 02_Install_go_${{ matrix.go }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: 03_Run_Tests
+        run: |
+          make run-test
+
+      - name: 04_Send_Coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: coverage.out
+          flag-name: Go-${{ matrix.go }}
+          parallel: true
+
+  finish:
+    needs:
+      - test-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+          parallel-finished: true
