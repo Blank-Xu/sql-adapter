@@ -1,7 +1,7 @@
 # sql-adapter
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/Blank-Xu/sql-adapter)](https://goreportcard.com/report/github.com/Blank-Xu/sql-adapter)
-[![Build Status](https://github.com/Blank-Xu/sql-adapter/actions/workflows/default.yaml/badge.svg)](https://github.com/Blank-Xu/sql-adapter/actions)
+[![Build Status](https://github.com/Blank-Xu/sql-adapter/actions/workflows/tests.yaml/badge.svg)](https://github.com/Blank-Xu/sql-adapter/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Blank-Xu/sql-adapter/badge.svg?branch=master)](https://coveralls.io/github/Blank-Xu/sql-adapter?branch=master)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/Blank-Xu/sql-adapter)](https://pkg.go.dev/github.com/Blank-Xu/sql-adapter)
 [![Release](https://img.shields.io/github/release/Blank-Xu/sql-adapter.svg)](https://github.com/Blank-Xu/sql-adapter/releases/latest)
@@ -10,7 +10,7 @@
 
 ---
 
-`sql-adapter` is a `database/sql` Adapter for [Casbin v2](https://github.com/casbin/casbin).
+The `sql-adapter` is a `database/sql` adapter for [Casbin v2](https://github.com/casbin/casbin).
 
 With this library, Casbin can load policy lines or save policy lines from supported databases.
 
