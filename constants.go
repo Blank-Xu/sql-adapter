@@ -39,7 +39,7 @@ CREATE TABLE %[1]s(
 );
 CREATE INDEX idx_%[1]s ON %[1]s (p_type,v0,v1);`
 	sqlTruncateTable = "TRUNCATE TABLE %s"
-	sqlTableExist    = "SELECT 1 FROM %s"
+	sqlTableExist    = "SELECT 1 FROM %s WHERE 1=0"
 	sqlInsertRow     = "INSERT INTO %s (p_type,v0,v1,v2,v3,v4,v5) VALUES (?,?,?,?,?,?,?)"
 	sqlUpdateRow     = "UPDATE %s SET p_type=?,v0=?,v1=?,v2=?,v3=?,v4=?,v5=? WHERE p_type=? AND v0=? AND v1=? AND v2=? AND v3=? AND v4=? AND v5=?"
 	sqlDeleteAll     = "DELETE FROM %s"
