@@ -16,9 +16,8 @@ jobs:
         os:
           - ubuntu-latest
         go:
-          - '1.20'
-          - '1.19'
-          - '1.18'
+          - '1.23.x'
+          - '1.22.x'
         mysql:
           - '8.0'
         postgres:
@@ -61,10 +60,10 @@ jobs:
 
     steps:
       - name: 01_Checkout_Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 02_Install_go_${{ matrix.go }}
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
 
