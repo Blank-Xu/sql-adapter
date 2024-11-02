@@ -60,7 +60,9 @@ func initPolicy(t *testing.T, db *sql.DB, driverName, tableName string) {
 
 	// clear current policy.
 	e.ClearPolicy()
-	validatePolicies(t, e.GetPolicy(), [][]string{})
+	policies, err := e.GetPolicy()
+	validateNilError(t, err)
+	validatePolicies(t, policies, [][]string{})
 
 	// load policy from DB.
 	err = a.LoadPolicy(e.GetModel())
@@ -68,7 +70,9 @@ func initPolicy(t *testing.T, db *sql.DB, driverName, tableName string) {
 		t.Fatal("sqladapter LoadPolicy failed, err: ", err)
 	}
 
-	validatePolicies(t, e.GetPolicy(), testDefaultPolicy)
+	policies, err = e.GetPolicy()
+	validateNilError(t, err)
+	validatePolicies(t, policies, testDefaultPolicy)
 }
 
 func testTableName(t *testing.T, db *sql.DB, driverName string) {
@@ -95,7 +99,9 @@ func testSaveLoad(t *testing.T, db *sql.DB, driverName, tableName string) {
 
 		a, _ := NewAdapter(db, driverName, tableName)
 		e, _ := casbin.NewEnforcer(testRbacModelFile, a)
-		validatePolicies(t, e.GetPolicy(), testDefaultPolicy)
+		policies, err := e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies, testDefaultPolicy)
 	})
 }
 
@@ -120,7 +126,9 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 		if err = e.LoadPolicy(); err != nil {
 			t.Errorf("%s test failed, err: %v", "LoadPolicy", err)
 		}
-		validatePolicies(t, e.GetPolicy(), testDefaultPolicy)
+		policies, err := e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies, testDefaultPolicy)
 
 		if _, err = e.AddPolicies([][]string{{"alice_1", "data_1", "read_1"}, {"bob_1", "data_1", "write_1"}}); err != nil {
 			t.Errorf("%s test failed, err: %v", "AddPolicies", err)
@@ -128,7 +136,9 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 		if err = e.LoadPolicy(); err != nil {
 			t.Errorf("%s test failed, err: %v", "LoadPolicy", err)
 		}
-		validatePolicies(t, e.GetPolicy(), testDefaultPolicy)
+		policies, err = e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies, testDefaultPolicy)
 	})
 
 	t.Run("02_testAutoSave_true", func(t *testing.T) {
@@ -149,7 +159,9 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 			t.Errorf("%s test failed, err: %v", "LoadPolicy", err)
 		}
 		// The policy has a new rule: {"alice", "data1", "write"}.
-		validatePolicies(t, e.GetPolicy(), append(testDefaultPolicy, []string{"alice", "data1", "write"}))
+		policies, err := e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies, append(testDefaultPolicy, []string{"alice", "data1", "write"}))
 
 		if _, err = e.AddPolicies([][]string{{"alice_2", "data_2", "read_2"}, {"bob_2", "data_2", "write_2"}}); err != nil {
 			t.Errorf("%s test failed, err: %v", "AddPolicies", err)
@@ -157,7 +169,9 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 		if err = e.LoadPolicy(); err != nil {
 			t.Errorf("%s test failed, err: %v", "LoadPolicy", err)
 		}
-		validatePolicies(t, e.GetPolicy(),
+		policies, err = e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies,
 			append(testDefaultPolicy, []string{"alice", "data1", "write"}, []string{"alice_2", "data_2", "read_2"}, []string{"bob_2", "data_2", "write_2"}))
 
 		if _, err = e.RemovePolicies([][]string{{"alice_2", "data_2", "read_2"}, {"bob_2", "data_2", "write_2"}}); err != nil {
@@ -166,7 +180,9 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 		if err = e.LoadPolicy(); err != nil {
 			t.Errorf("%s test failed, err: %v", "LoadPolicy", err)
 		}
-		validatePolicies(t, e.GetPolicy(), append(testDefaultPolicy, []string{"alice", "data1", "write"}))
+		policies, err = e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies, append(testDefaultPolicy, []string{"alice", "data1", "write"}))
 
 		if _, err = e.RemovePolicy("alice", "data1", "write"); err != nil {
 			t.Errorf("%s test failed, err: %v", "RemovePolicy", err)
@@ -174,7 +190,9 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 		if err = e.LoadPolicy(); err != nil {
 			t.Errorf("%s test failed, err: %v", "LoadPolicy", err)
 		}
-		validatePolicies(t, e.GetPolicy(), testDefaultPolicy)
+		policies, err = e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies, testDefaultPolicy)
 
 		// Remove "data2_admin" related policy rules via a filter.
 		// Two rules: {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"} are deleted.
@@ -184,7 +202,9 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 		if err = e.LoadPolicy(); err != nil {
 			t.Errorf("%s test failed, err: %v", "LoadPolicy", err)
 		}
-		validatePolicies(t, e.GetPolicy(), [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}})
+		policies, err = e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}})
 	})
 }
 
@@ -244,7 +264,9 @@ func testFilteredPolicy(t *testing.T, db *sql.DB, driverName, tableName string) 
 			if err = e.LoadFilteredPolicy(tt.filterPolicy); err != nil {
 				t.Errorf("%s LoadFilteredPolicy test failed, err: %v", tt.name, err)
 			}
-			validatePolicies(t, e.GetPolicy(), tt.expectPolicy)
+			policies, err := e.GetPolicy()
+			validateNilError(t, err)
+			validatePolicies(t, policies, tt.expectPolicy)
 		})
 	}
 }
@@ -264,7 +286,9 @@ func testUpdatePolicy(t *testing.T, db *sql.DB, driverName, tableName string) {
 		if err = e.LoadPolicy(); err != nil {
 			t.Errorf("%s test failed, err: %v", "LoadPolicy", err)
 		}
-		validatePolicies(t, e.GetPolicy(), [][]string{{"alice", "data1", "write"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}})
+		policies, err := e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies, [][]string{{"alice", "data1", "write"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}})
 	})
 }
 
@@ -283,7 +307,9 @@ func testUpdatePolicies(t *testing.T, db *sql.DB, driverName, tableName string) 
 		if err = e.LoadPolicy(); err != nil {
 			t.Errorf("%s test failed, err: %v", "LoadPolicy", err)
 		}
-		validatePolicies(t, e.GetPolicy(), [][]string{{"alice", "data1", "read"}, {"bob", "data2", "read"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}})
+		policies, err := e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "read"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}})
 	})
 }
 
@@ -305,7 +331,9 @@ func testUpdateFilteredPolicies(t *testing.T, db *sql.DB, driverName, tableName 
 		if err = e.LoadPolicy(); err != nil {
 			t.Errorf("%s test failed, err: %v", "LoadPolicy", err)
 		}
-		validatePolicies(t, e.GetPolicy(), [][]string{{"alice", "data1", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}, {"bob", "data2", "read"}})
+		policies, err := e.GetPolicy()
+		validateNilError(t, err)
+		validatePolicies(t, policies, [][]string{{"alice", "data1", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}, {"bob", "data2", "read"}})
 	})
 }
 
@@ -329,5 +357,11 @@ func validatePolicies(t *testing.T, getPolicy, wantPolicy [][]string) {
 			t.Error("get policy: \n", getPolicy, "supposed to be: \n", wantPolicy)
 			break
 		}
+	}
+}
+
+func validateNilError(t *testing.T, err error) {
+	if err != nil {
+		t.Errorf("error not nil: %v", err)
 	}
 }

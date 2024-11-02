@@ -53,21 +53,17 @@ func testSQL(t *testing.T, dao dao) {
 }
 
 func testInsert(t *testing.T, dao dao) {
-
-	t.Run("insert", func(t *testing.T) {
-		t.Log("test insert")
-	})
-
+	// todo
 }
 
 func testUpdate(t *testing.T, dao dao) {
-
+	// todo
 }
 
 func testSelect(t *testing.T, dao dao) {
-
+	// todo
 }
 
 func testDelete(t *testing.T, dao dao) {
-
+	// todo
 }

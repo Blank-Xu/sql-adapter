@@ -37,7 +37,7 @@ jobs:
           MYSQL_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
         ports:
           - 3306:3306
-      
+
       postgres:
         image: postgres:${{ matrix.postgres }}
         env:
@@ -46,7 +46,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
         ports:
           - 5432:5432
-      
+
       sqlserver:
         image: mcmoe/mssqldocker:${{ matrix.sqlserver }}
         env:
