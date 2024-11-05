@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package sqladapter
+package sqladaptertest
 
 import (
 	"bufio"
@@ -22,19 +22,19 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/microsoft/go-mssqldb"
 )
 
 const (
-	testEnvFile = "test.env"
-
-	testRbacModelFile  = "examples/rbac_model.conf"
-	testRbacPolicyFile = "examples/rbac_policy.csv"
+	testEnvFile = "../.env"
 )
 
 var (
 	testDBs = map[string]*sql.DB{}
-
-	testDefaultPolicy = [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}}
 )
 
 func TestMain(m *testing.M) {
@@ -48,51 +48,24 @@ func TestMain(m *testing.M) {
 func setup() {
 	driverNames := sql.Drivers()
 	if len(driverNames) == 0 {
-		log.Fatal("empty drivers")
+		log.Fatal("empty sql drivers")
 	}
 
 	envMap := loadEnvfile()
+	dataSources := getDataSources(envMap)
 
-	testDataSources := map[string]string{
-		"sqlite": "./test.db",
-		"mysql": fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-			envMap["TEST_DATABASE_USER"],
-			envMap["TEST_DATABASE_PASSWORD"],
-			envMap["TEST_DATABASE_HOST"],
-			envMap["TEST_DATABASE_PORT_MYSQL"],
-			envMap["TEST_DATABASE_NAME"]),
-		"postgres": fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
-			envMap["TEST_DATABASE_USER"],
-			envMap["TEST_DATABASE_PASSWORD"],
-			envMap["TEST_DATABASE_HOST"],
-			envMap["TEST_DATABASE_PORT_POSTGRES"],
-			envMap["TEST_DATABASE_NAME"]),
-		"sqlserver": fmt.Sprintf("sqlserver://sa:%s@%s:%s?database=%s&encrypt=disable&connection+timeout=30",
-			envMap["TEST_DATABASE_PASSWORD"],
-			envMap["TEST_DATABASE_HOST"],
-			envMap["TEST_DATABASE_PORT_SQLSERVER"],
-			envMap["TEST_DATABASE_NAME"]),
+	if db := os.Getenv("TEST_DB"); db != "" {
+		log.Println(db)
+		loadDB(dataSources, db)
+		return
 	}
-
-	// log.Println(testDataSources)
 
 	for _, driverName := range driverNames {
 		if driverName == "mssql" {
 			continue
 		}
 
-		dataSourceName, ok := testDataSources[driverName]
-		if !ok {
-			log.Printf("driver name [%s] not found\n", driverName)
-			continue
-		}
-
-		db, err := connDB(driverName, dataSourceName)
-		if err != nil {
-			log.Fatalf("connect to database failed, driver name: [%s], data source: [%s], err: %v", driverName, dataSourceName, err)
-		}
-
-		testDBs[driverName] = db
+		loadDB(dataSources, driverName)
 	}
 }
 
@@ -136,6 +109,29 @@ func loadEnvfile() map[string]string {
 	return m
 }
 
+func getDataSources(envMap map[string]string) map[string]string {
+	return map[string]string{
+		"sqlite": "./test.db",
+		"mysql": fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+			envMap["TEST_DATABASE_USER"],
+			envMap["TEST_DATABASE_PASSWORD"],
+			envMap["TEST_DATABASE_HOST"],
+			envMap["TEST_DATABASE_PORT_MYSQL"],
+			envMap["TEST_DATABASE_NAME"]),
+		"postgres": fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
+			envMap["TEST_DATABASE_USER"],
+			envMap["TEST_DATABASE_PASSWORD"],
+			envMap["TEST_DATABASE_HOST"],
+			envMap["TEST_DATABASE_PORT_POSTGRES"],
+			envMap["TEST_DATABASE_NAME"]),
+		"sqlserver": fmt.Sprintf("sqlserver://sa:%s@%s:%s?database=%s&encrypt=disable&connection+timeout=30",
+			envMap["TEST_DATABASE_PASSWORD"],
+			envMap["TEST_DATABASE_HOST"],
+			envMap["TEST_DATABASE_PORT_SQLSERVER"],
+			envMap["TEST_DATABASE_NAME"]),
+	}
+}
+
 func connDB(driverName, dataSourceName string) (*sql.DB, error) {
 	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
@@ -147,4 +143,19 @@ func connDB(driverName, dataSourceName string) (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func loadDB(dataSources map[string]string, driverName string) {
+	dataSourceName, ok := dataSources[driverName]
+	if !ok {
+		log.Printf("driver name [%s] not found\n", driverName)
+		return
+	}
+
+	db, err := connDB(driverName, dataSourceName)
+	if err != nil {
+		log.Fatalf("connect to database failed, driver name: [%s], data source: [%s], err: %v", driverName, dataSourceName, err)
+	}
+
+	testDBs[driverName] = db
 }

@@ -12,15 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package sqladapter
+package sqladaptertest
 
 import (
 	"database/sql"
 	"strings"
 	"testing"
 
+	. "github.com/Blank-Xu/sql-adapter"
 	"github.com/casbin/casbin/v2"
 )
+
+const (
+	testRbacModelFile  = "../testdata/rbac_model.conf"
+	testRbacPolicyFile = "../testdata/rbac_policy.csv"
+)
+
+var testDefaultPolicy = [][]string{{"alice", "data1", "read"}, {"bob", "data2", "write"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}}
 
 func TestAdapter(t *testing.T) {
 	for driverName, db := range testDBs {

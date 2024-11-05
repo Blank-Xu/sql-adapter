@@ -18,6 +18,8 @@ jobs:
         go:
           - '1.23.x'
           - '1.22.x'
+          - '1.21.x'
+          - '1.20.x'
         mysql:
           - '8.0'
         postgres:
@@ -86,3 +88,21 @@ jobs:
       - uses: shogo82148/actions-goveralls@v1
         with:
           parallel-finished: true
+
+  release:
+    needs:
+      - test-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Sha
+        run: |
+          echo ${{ github.sha }} > release.txt && cat release.txt
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            release.txt
+            LICENSE
