@@ -19,7 +19,6 @@ jobs:
           - '1.23.x'
           - '1.22.x'
           - '1.21.x'
-          - '1.20.x'
         mysql:
           - '8.0'
         postgres:
@@ -88,3 +87,22 @@ jobs:
       - uses: shogo82148/actions-goveralls@v1
         with:
           parallel-finished: true
+
+  semantic-release:
+    needs:
+      - test-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+      - name: Release
+        if: github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release@21.0.2
