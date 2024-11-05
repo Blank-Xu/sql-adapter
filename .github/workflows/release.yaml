@@ -23,6 +23,6 @@ jobs:
         with:
           node-version: 21
       - run: echo ${{ github.sha }} > release.txt
-      - run: npx semantic-release@21.0.2
+      - run: npx semantic-release@v19.0.2
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
