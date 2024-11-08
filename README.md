@@ -30,7 +30,7 @@ With this library, Casbin can load policy lines or save policy lines from suppor
 ## Installation
 
 ```sh
- go get github.com/Blank-Xu/sql-adapter
+go get github.com/Blank-Xu/sql-adapter
 ```
 
 ## Simple Example
@@ -88,12 +88,12 @@ func main() {
         panic(err)
     }
 
-    e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+    e, err := casbin.NewEnforcer("test/testdata/rbac_model.conf", a)
     if err != nil {
         panic(err)
     }
 
-    // Load the policy from DB.
+    // Load the policies from DB.
     if err = e.LoadPolicy(); err != nil {
         log.Println("LoadPolicy failed, err: ", err)
     }

@@ -76,7 +76,7 @@ test-sqlserver:
 	@docker stop sqlserver_${TEST_DATABASE_NAME}
 
 lint:
-	golangci-lint run ./...
+	golangci-lint run -v ./...
 
 fmt:
 	goimports -l -w -d -e .

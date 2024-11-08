@@ -1,5 +1,6 @@
 {
     "debug": true,
+    "repositoryUrl": "https://github.com/Blank-Xu/sql-adapter",
     "branches": [
         "+([0-9])?(.{+([0-9]),x}).x",
         "master",
