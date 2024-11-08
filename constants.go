@@ -21,11 +21,11 @@ const (
 	// maxParameterCount .
 	maxParameterCount = 7
 
-	// defaultPlaceholder
+	// defaultPlaceholder .
 	defaultPlaceholder = "?"
 )
 
-// general SQL
+// general SQL for all supported databases.
 const (
 	sqlCreateTable = `
 CREATE TABLE %[1]s(
@@ -49,7 +49,7 @@ CREATE INDEX idx_%[1]s ON %[1]s (p_type,v0,v1);`
 	sqlSelectWhere   = "SELECT p_type,v0,v1,v2,v3,v4,v5 FROM %s WHERE "
 )
 
-// for SQLite3
+// for SQLite3.
 const (
 	sqlCreateTableSQLite3 = `
 CREATE TABLE IF NOT EXISTS %[1]s(
@@ -79,7 +79,7 @@ CREATE INDEX IF NOT EXISTS idx_%[1]s ON %[1]s (p_type,v0,v1);`
 	sqlTruncateTableSQLite3 = "DROP TABLE IF EXISTS %[1]s;" + sqlCreateTableSQLite3
 )
 
-// for MySQL
+// for MySQL.
 const (
 	sqlCreateTableMySQL = `
 CREATE TABLE IF NOT EXISTS %[1]s(
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS %[1]s(
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;`
 )
 
-// for PostgreSQL
+// for PostgreSQL.
 const (
 	sqlPlaceholderPostgreSQL = "$"
 	sqlCreateTablePostgreSQL = `
@@ -113,7 +113,7 @@ CREATE INDEX IF NOT EXISTS idx_%[1]s ON %[1]s (p_type,v0,v1);`
 	sqlDeleteRowPostgreSQL = "DELETE FROM %s WHERE p_type=$1 AND v0=$2 AND v1=$3 AND v2=$4 AND v3=$5 AND v4=$6 AND v5=$7"
 )
 
-// for SQLServer
+// for SQLServer.
 const (
 	sqlPlaceholderSQLServer = "@p"
 	sqlCreateTableSQLServer = `
