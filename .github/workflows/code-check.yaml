@@ -39,15 +39,15 @@ jobs:
           version: latest
 
       - name: 05_Initialize_CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: 'go'
           queries: +security-and-quality
 
       - name: 06_Auto_Build
-        uses: github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@v3
 
       - name: 07_CodeQL_Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:go"
