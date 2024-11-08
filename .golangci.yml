@@ -1,0 +1,51 @@
+run:
+  build-tags:
+    - integration
+  timeout: 10m
+linters:
+  enable:
+    - dogsled
+    - dupl
+    - gocritic
+    - godot
+    - gofmt
+    - goimports
+    - gosec
+    - misspell
+    - nakedret
+    - perfsprint
+    - paralleltest
+    - stylecheck
+    - tparallel
+    - unconvert
+    - unparam
+    - whitespace
+    - contextcheck
+    - cyclop
+    - decorder
+    # - depguard
+    - dupword
+    # - err113
+    - errname
+    - errorlint
+    - exhaustive
+    - fatcontext
+    - funlen
+    - gci
+    - gocritic
+    - tagalign
+linters-settings:
+  perfsprint:
+    errorf: true
+    strconcat: false
+  cyclop:
+    # The maximal code complexity to report.
+    # Default: 10
+    max-complexity: 12
+    # The maximal average package complexity.
+    # If it's higher than 0.0 (float) the check is enabled
+    # Default: 0.0
+    package-average: 3
+    # Should ignore tests.
+    # Default: false
+    skip-tests: true

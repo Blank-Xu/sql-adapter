@@ -49,18 +49,18 @@ func getDao(db *sql.DB, driverName, tableName string) (dao, error) {
 	var err error
 
 	switch driverName {
-	case "postgres", "pgx", "cloudsql-postgres":
+	case "postgres", "pgx", "pq-timeouts", "cloudsql-postgres", "ql", "nrpostgres", "cockroach":
 		d.placeHolder = sqlPlaceholderPostgreSQL
 		d.sqlCreateTable = fmt.Sprintf(sqlCreateTablePostgreSQL, tableName)
 		d.sqlInsertRow = fmt.Sprintf(sqlInsertRowPostgreSQL, tableName)
 		d.sqlUpdateRow = fmt.Sprintf(sqlUpdateRowPostgreSQL, tableName)
 		d.sqlDeleteRow = fmt.Sprintf(sqlDeleteRowPostgreSQL, tableName)
-	case "mysql":
+	case "mysql", "nrmysql":
 		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableMySQL, tableName)
-	case "sqlite", "sqlite3":
+	case "sqlite", "sqlite3", "nrsqlite3":
 		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableSQLite3, tableName)
 		d.sqlTruncateTable = fmt.Sprintf(sqlTruncateTableSQLite3, tableName)
-	case "sqlserver":
+	case "sqlserver", "azuresql":
 		d.placeHolder = sqlPlaceholderSQLServer
 		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableSQLServer, tableName)
 		d.sqlInsertRow = fmt.Sprintf(sqlInsertRowSQLServer, tableName)
@@ -178,7 +178,7 @@ type txData struct {
 func (d dao) execTxSQL(ctx context.Context, beforeTxData, afterTxData txData, query string, args [][]interface{}) error {
 	tx, err := d.db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("begin tx err: %v", err)
+		return fmt.Errorf("begin tx err: %w", err)
 	}
 
 	var (
@@ -227,10 +227,10 @@ func (d dao) execTxSQL(ctx context.Context, beforeTxData, afterTxData txData, qu
 ROLLBACK:
 
 	if err1 := tx.Rollback(); err1 != nil {
-		return fmt.Errorf("%s err: %v, rollback err: %v", step, err, err1)
+		return fmt.Errorf("%s err: %w, rollback err: %w", step, err, err1)
 	}
 
-	return fmt.Errorf("%s err: %v", step, err)
+	return fmt.Errorf("%s err: %w", step, err)
 }
 
 // CreateTable create a table.
@@ -259,7 +259,7 @@ func (d dao) SelectRows(ctx context.Context, query string, args ...interface{}) 
 	return d.querySQL(ctx, query, args...)
 }
 
-// SelectByCondition
+// SelectByCondition .
 func (d dao) SelectByCondition(ctx context.Context, whereCondition string, args ...interface{}) ([]rule, error) {
 	var buf bytes.Buffer
 
@@ -333,7 +333,7 @@ func (d dao) InsertRow(ctx context.Context, args ...interface{}) error {
 	return d.execSQL(ctx, d.sqlInsertRow, args...)
 }
 
-// InsertRows insert multiple rows to the table by transaction
+// InsertRows insert multiple rows to the table by transaction.
 func (d dao) InsertRows(ctx context.Context, args [][]interface{}) error {
 	return d.execTxSQL(ctx, txData{}, txData{}, d.sqlInsertRow, args)
 }
@@ -343,17 +343,17 @@ func (d dao) UpdateRow(ctx context.Context, args ...interface{}) error {
 	return d.execSQL(ctx, d.sqlUpdateRow, args...)
 }
 
-// UpdateRows update multiple rows to the table by transaction
+// UpdateRows update multiple rows to the table by transaction.
 func (d dao) UpdateRows(ctx context.Context, args [][]interface{}) error {
 	return d.execTxSQL(ctx, txData{}, txData{}, d.sqlUpdateRow, args)
 }
 
-// UpdateFilteredRows
+// UpdateFilteredRows .
 func (d dao) UpdateFilteredRows(ctx context.Context, deleteCondition string, deleteArgs []interface{}, updateArgs [][]interface{}) error {
 	deleteQuery := d.sqlDeleteByArgs + deleteCondition
 	deleteQuery = d.rebindSQL(deleteQuery)
 
-	return d.execTxSQL(ctx, txData{step: "delete rows", query: deleteQuery, args: deleteArgs}, txData{}, d.sqlInsertRow, updateArgs)
+	return d.execTxSQL(ctx, txData{step: "delete rows", query: deleteQuery, args: deleteArgs}, txData{step: "after tx exec"}, d.sqlInsertRow, updateArgs)
 }
 
 // DeleteAll clear the table.
@@ -396,7 +396,7 @@ func (d dao) DeleteByArgs(ctx context.Context, ptype string, rule []string) erro
 	return d.execSQL(ctx, query, args...)
 }
 
-// DeleteByCondition
+// DeleteByCondition .
 func (d dao) DeleteByCondition(ctx context.Context, condition string, args ...interface{}) error {
 	deleteQuery := d.sqlDeleteByArgs + condition
 	deleteQuery = d.rebindSQL(deleteQuery)
@@ -414,7 +414,7 @@ func (d dao) DeleteByCondition(ctx context.Context, condition string, args ...in
 // 	return d.execTxSQL(ctx, txData{step: "truncate table", query: d.sqlTruncateTable}, txData{}, d.sqlInsertRow, rules...)
 // }
 
-// GenFilteredCondition
+// GenFilteredCondition .
 func (d dao) GenFilteredCondition(ptype string, fieldIndex int, fieldValues ...string) (string, []interface{}) {
 	var whereConditionBuf bytes.Buffer
 
