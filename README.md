@@ -33,9 +33,14 @@ With this library, Casbin can load policy lines or save policy lines from suppor
 go get github.com/Blank-Xu/sql-adapter
 ```
 
-## Simple Example
+## Examples
 
-### MySQL
+- [database/sql](https://github.com/Blank-Xu/sql-adapter/blob/master/examples/database_sql)
+- [sqlx](https://github.com/Blank-Xu/sql-adapter/tree/master/examples/sqlx)
+- [xorm](https://github.com/Blank-Xu/sql-adapter/tree/master/examples/xorm)
+- [gorm](https://github.com/Blank-Xu/sql-adapter/tree/master/examples/gorm)
+
+### Simple example for MySQL
 
 ```go
 package main
@@ -51,37 +56,24 @@ import (
     _ "github.com/go-sql-driver/mysql"
 )
 
-func finalizer(db *sql.DB) {
-    if db == nil {
-        return
-    }
-    
-    err := db.Close()
-    if err != nil {
-        panic(err)
-    }
-}
-
 func main() {
     // connect to the database first.
-    db, err := sql.Open("mysql", "root:YourPassword@tcp(127.0.0.1:3306)/YourDBName")
+    db, err := sql.Open("mysql", "YourUserName:YourPassword@tcp(127.0.0.1:3306)/YourDBName?charset=utf8")
     if err != nil {
         panic(err)
     }
     if err = db.Ping();err!=nil{
         panic(err)
     }
+    defer db.Close()
 
     db.SetMaxOpenConns(20)
     db.SetMaxIdleConns(10)
     db.SetConnMaxLifetime(time.Minute * 10)
 
-    // need to control by user, not the package
-    runtime.SetFinalizer(db, finalizer)
-
     // Initialize an adapter and use it in a Casbin enforcer:
-    // The adapter will use the SQLite3 table name "casbin_rule_test",
-    // the default table name is "casbin_rule".
+    // The adapter will use the MySQL table name "casbin_rule_test",
+    // the default table name is "casbin_rule" if it is not given.
     // If it doesn't exist, the adapter will create it automatically.
     a, err := sqladapter.NewAdapter(db, "mysql", "casbin_rule_test")
     if err != nil {

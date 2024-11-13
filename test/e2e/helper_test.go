@@ -51,7 +51,7 @@ func setup() {
 		log.Fatal("empty sql drivers")
 	}
 
-	envMap := loadEnvfile()
+	envMap := loadEnvfile(testEnvFile)
 	dataSources := getDataSources(envMap)
 
 	if db := os.Getenv("TEST_DB"); db != "" {
@@ -77,8 +77,8 @@ func teardown() {
 	}
 }
 
-func loadEnvfile() map[string]string {
-	f, err := os.Open(testEnvFile)
+func loadEnvfile(envFile string) map[string]string {
+	f, err := os.Open(envFile)
 	if err != nil {
 		panic(err)
 	}
@@ -96,7 +96,7 @@ func loadEnvfile() map[string]string {
 
 		s := strings.Split(text, "=")
 		if len(s) < 2 {
-			panic("invalid env file: " + testEnvFile)
+			panic("invalid env file: " + envFile)
 		}
 
 		m[s[0]] = strings.Join(s[1:], "")
@@ -112,7 +112,7 @@ func loadEnvfile() map[string]string {
 func getDataSources(envMap map[string]string) map[string]string {
 	return map[string]string{
 		"sqlite": "./test.db",
-		"mysql": fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		"mysql": fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8",
 			envMap["TEST_DATABASE_USER"],
 			envMap["TEST_DATABASE_PASSWORD"],
 			envMap["TEST_DATABASE_HOST"],
