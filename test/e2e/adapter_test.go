@@ -32,7 +32,7 @@ var testDefaultPolicy = [][]string{{"alice", "data1", "read"}, {"bob", "data2", 
 
 func TestAdapter(t *testing.T) {
 	for driverName, db := range testDBs {
-		t.Logf("[%s] test start", driverName)
+		t.Logf("adapter test for [%s] start", driverName)
 
 		testTableName(t, db, driverName)
 		testSaveLoad(t, db, driverName, "sqladapter_test_save_load")
@@ -41,6 +41,8 @@ func TestAdapter(t *testing.T) {
 		testUpdatePolicy(t, db, driverName, "sqladapter_test_update_policy")
 		testUpdatePolicies(t, db, driverName, "sqladapter_test_update_policies")
 		testUpdateFilteredPolicies(t, db, driverName, "sqladapter_test_update_filtered_policies")
+
+		t.Logf("adapter test for [%s] finished", driverName)
 	}
 }
 
@@ -88,21 +90,21 @@ func testTableName(t *testing.T, db *sql.DB, driverName string) {
 		name      string
 		tableName string
 	}{
-		{"01_testTableName_empty_name", ""},
-		{"02_testTableName_test_name", "test_name"},
+		{"01_empty_name", ""},
+		{"02_test_name", "test_name"},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("TableName_"+tt.name, func(t *testing.T) {
 			if _, err := NewAdapter(db, driverName, tt.tableName); err != nil {
-				t.Errorf("test [%s] failed, err: %v", tt.name, err)
+				t.Errorf("test [%s] in data source [%s] failed, err: %v", tt.name, driverName, err)
 			}
 		})
 	}
 }
 
 func testSaveLoad(t *testing.T, db *sql.DB, driverName, tableName string) {
-	t.Run("testSaveLoad", func(t *testing.T) {
+	t.Run("Save_Load", func(t *testing.T) {
 		initPolicy(t, db, driverName, tableName)
 
 		a, _ := NewAdapter(db, driverName, tableName)
@@ -114,8 +116,10 @@ func testSaveLoad(t *testing.T, db *sql.DB, driverName, tableName string) {
 }
 
 func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
+	const testName = "AutoSave_"
+
 	var err error
-	t.Run("01_testAutoSave_false", func(t *testing.T) {
+	t.Run(testName+"01_not_EnableAutoSave", func(t *testing.T) {
 		initPolicy(t, db, driverName, tableName)
 
 		a, _ := NewAdapter(db, driverName, tableName)
@@ -149,7 +153,7 @@ func testAutoSave(t *testing.T, db *sql.DB, driverName, tableName string) {
 		validatePolicies(t, policies, testDefaultPolicy)
 	})
 
-	t.Run("02_testAutoSave_true", func(t *testing.T) {
+	t.Run(testName+"02_EnableAutoSave", func(t *testing.T) {
 		initPolicy(t, db, driverName, tableName)
 
 		a, _ := NewAdapter(db, driverName, tableName)
@@ -263,7 +267,7 @@ func testFilteredPolicy(t *testing.T, db *sql.DB, driverName, tableName string) 
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("FilteredPolicy_"+tt.name, func(t *testing.T) {
 			if len(tt.addPolicy) > 0 {
 				if _, err = e.AddPolicy(tt.addPolicy...); err != nil {
 					t.Errorf("%s AddPolicy test failed, err: %v", tt.name, err)
@@ -281,7 +285,7 @@ func testFilteredPolicy(t *testing.T, db *sql.DB, driverName, tableName string) 
 
 func testUpdatePolicy(t *testing.T, db *sql.DB, driverName, tableName string) {
 	var err error
-	t.Run("testUpdatePolicies", func(t *testing.T) {
+	t.Run("UpdatePolicy", func(t *testing.T) {
 		initPolicy(t, db, driverName, tableName)
 
 		a, _ := NewAdapter(db, driverName, tableName)
@@ -302,7 +306,7 @@ func testUpdatePolicy(t *testing.T, db *sql.DB, driverName, tableName string) {
 
 func testUpdatePolicies(t *testing.T, db *sql.DB, driverName, tableName string) {
 	var err error
-	t.Run("testUpdatePolicies", func(t *testing.T) {
+	t.Run("UpdatePolicies", func(t *testing.T) {
 		initPolicy(t, db, driverName, tableName)
 
 		a, _ := NewAdapter(db, driverName, tableName)
@@ -323,7 +327,7 @@ func testUpdatePolicies(t *testing.T, db *sql.DB, driverName, tableName string) 
 
 func testUpdateFilteredPolicies(t *testing.T, db *sql.DB, driverName, tableName string) {
 	var err error
-	t.Run("testUpdateFilteredPolicies", func(t *testing.T) {
+	t.Run("UpdateFilteredPolicies", func(t *testing.T) {
 		initPolicy(t, db, driverName, tableName)
 
 		a, _ := NewAdapter(db, driverName, tableName)
@@ -369,6 +373,8 @@ func validatePolicies(t *testing.T, getPolicy, wantPolicy [][]string) {
 }
 
 func validateNilError(t *testing.T, err error) {
+	t.Helper()
+
 	if err != nil {
 		t.Errorf("error not nil: %v", err)
 	}
