@@ -31,8 +31,7 @@ func getDao(db *sql.DB, driverName, tableName string) (dao, error) {
 		tableName:   tableName,
 		placeHolder: defaultPlaceholder,
 
-		sqlCreateTable:   fmt.Sprintf(sqlCreateTable, tableName),
-		sqlTruncateTable: fmt.Sprintf(sqlTruncateTable, tableName),
+		sqlCreateTable: fmt.Sprintf(sqlCreateTable, tableName),
 
 		sqlTableExist: fmt.Sprintf(sqlTableExist, tableName),
 
@@ -59,7 +58,6 @@ func getDao(db *sql.DB, driverName, tableName string) (dao, error) {
 		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableMySQL, tableName)
 	case "sqlite", "sqlite3", "nrsqlite3":
 		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableSQLite3, tableName)
-		d.sqlTruncateTable = fmt.Sprintf(sqlTruncateTableSQLite3, tableName)
 	case "sqlserver", "azuresql":
 		d.placeHolder = sqlPlaceholderSQLServer
 		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableSQLServer, tableName)
@@ -93,16 +91,9 @@ type dao struct {
 	sqlInsertRow string
 	sqlUpdateRow string
 
-	// not necessary to use DDL for delete
-	sqlTruncateTable string
-
 	sqlDeleteAll    string
 	sqlDeleteRow    string
 	sqlDeleteByArgs string
-}
-
-func (d dao) TableName() string {
-	return d.tableName
 }
 
 // rebindSQL rebind SQL by different database.
@@ -403,16 +394,6 @@ func (d dao) DeleteByCondition(ctx context.Context, condition string, args ...in
 
 	return d.execSQL(ctx, deleteQuery, args...)
 }
-
-// TruncateTable clear the table.
-// func (d dao) TruncateTable(ctx context.Context) error {
-// 	return d.execSQL(ctx, d.sqlTruncateTable)
-// }
-
-// TruncateAndInsertRows clear table and insert new rows.
-// func (d dao) TruncateAndInsertRows(ctx context.Context, rules ...[]interface{}) error {
-// 	return d.execTxSQL(ctx, txData{step: "truncate table", query: d.sqlTruncateTable}, txData{}, d.sqlInsertRow, rules...)
-// }
 
 // GenFilteredCondition .
 func (d dao) GenFilteredCondition(ptype string, fieldIndex int, fieldValues ...string) (string, []interface{}) {
