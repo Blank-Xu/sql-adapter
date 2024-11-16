@@ -18,13 +18,12 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
-func getDao(db *sql.DB, driverName, tableName string) (dao, error) {
+func newDao(db *sql.DB, driverNameIndex adapterDriverNameIndex, tableName string) dao {
 	d := dao{
 		db: db,
 
@@ -45,34 +44,26 @@ func getDao(db *sql.DB, driverName, tableName string) (dao, error) {
 		sqlSelectWhere: fmt.Sprintf(sqlSelectWhere, tableName),
 	}
 
-	var err error
-
-	switch driverName {
-	case "postgres", "pgx", "pq-timeouts", "cloudsql-postgres", "ql", "nrpostgres", "cockroach":
+	switch driverNameIndex {
+	case _SQLite:
+		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableSQLite3, tableName)
+	case _MySQL:
+		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableMySQL, tableName)
+	case _PostgreSQL:
 		d.placeHolder = sqlPlaceholderPostgreSQL
 		d.sqlCreateTable = fmt.Sprintf(sqlCreateTablePostgreSQL, tableName)
 		d.sqlInsertRow = fmt.Sprintf(sqlInsertRowPostgreSQL, tableName)
 		d.sqlUpdateRow = fmt.Sprintf(sqlUpdateRowPostgreSQL, tableName)
 		d.sqlDeleteRow = fmt.Sprintf(sqlDeleteRowPostgreSQL, tableName)
-	case "mysql", "nrmysql":
-		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableMySQL, tableName)
-	case "sqlite", "sqlite3", "nrsqlite3":
-		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableSQLite3, tableName)
-	case "sqlserver", "azuresql":
+	case _SQLServer:
 		d.placeHolder = sqlPlaceholderSQLServer
 		d.sqlCreateTable = fmt.Sprintf(sqlCreateTableSQLServer, tableName)
 		d.sqlInsertRow = fmt.Sprintf(sqlInsertRowSQLServer, tableName)
 		d.sqlUpdateRow = fmt.Sprintf(sqlUpdateRowSQLServer, tableName)
 		d.sqlDeleteRow = fmt.Sprintf(sqlDeleteRowSQLServer, tableName)
-	case "mssql":
-		err = errors.New("driver name mssql not support, please use sqlserver")
-	case "oci8", "ora", "goracle":
-		err = errors.New("sqladapter: please checkout 'oracle' branch")
-	default:
-		err = fmt.Errorf("unsupported driver name: %s", driverName)
 	}
 
-	return d, err
+	return d
 }
 
 type dao struct {

@@ -25,6 +25,15 @@ const (
 	defaultPlaceholder = "?"
 )
 
+type adapterDriverNameIndex int
+
+const (
+	_SQLite adapterDriverNameIndex = iota + 1
+	_MySQL
+	_PostgreSQL
+	_SQLServer
+)
+
 // general SQL for all supported databases.
 const (
 	sqlCreateTable = `

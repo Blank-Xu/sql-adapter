@@ -3,10 +3,14 @@
 include test/.env
 export $(shell sed 's/=.*//' test/.env)
 
-define run_test
+define run_unit_test
+	@go test -v -race -covermode=atomic -coverprofile=coverage.out ./... -coverpkg=./...
+endef
+
+define run_e2e_test
 	@echo "test start with DB[${1}]"
 	@cd test && CGO_ENABLED=1 TEST_DB=${1} go test -v -race -covermode=atomic -coverprofile=coverage.out ./e2e/... -coverpkg=../...
-	@mv test/coverage.out coverage.out
+	@if [ -f "coverage.out" ]; then tail -n +2 test/coverage.out >> coverage.out; else mv test/coverage.out coverage.out; fi
 endef
 
 define start_mysql
@@ -41,38 +45,42 @@ define start_sqlserver
 	@docker exec -i sqlserver_${TEST_DATABASE_NAME} /bin/bash < test/init.sqlserver.sh
 endef
 
-run-test:
-	${call run_test}
+run-unit-test:
+	${call run_unit_test}
+
+run-e2e-test:
+	${call run_e2e_test}
 
 test-all:
+	${call run_unit_test}
 	${call start_sqlserver}
 	${call start_mysql}
-	${call start_postgres}	
+	${call start_postgres}
 	@sleep 10
-	${call run_test}
+	${call run_e2e_test}
 	@docker stop mysql_${TEST_DATABASE_NAME}
 	@docker stop postgres_${TEST_DATABASE_NAME}
 	@docker stop sqlserver_${TEST_DATABASE_NAME}
 
 test-sqlite:
-	${call run_test,sqlite}
+	${call run_e2e_test,sqlite}
 
 test-mysql:
 	${call start_mysql}
 	@sleep 10
-	${call run_test,mysql}
+	${call run_e2e_test,mysql}
 	@docker stop mysql_${TEST_DATABASE_NAME}
 
 test-postgres:
 	${call start_postgres}
 	@sleep 10
-	${call run_test,postgres}
+	${call run_e2e_test,postgres}
 	@docker stop postgres_${TEST_DATABASE_NAME}
 
 test-sqlserver:
 	${call start_sqlserver}
 	@sleep 5
-	${call run_test,sqlserver}
+	${call run_e2e_test,sqlserver}
 	@docker stop sqlserver_${TEST_DATABASE_NAME}
 
 lint:

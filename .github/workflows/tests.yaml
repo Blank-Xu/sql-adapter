@@ -70,7 +70,8 @@ jobs:
 
       - name: 03_Run_Tests
         run: |
-          make run-test
+          make run-unit-test
+          make run-e2e-test
 
       - name: 04_Send_Coverage
         uses: shogo82148/actions-goveralls@v1

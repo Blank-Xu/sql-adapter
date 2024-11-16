@@ -19,5 +19,6 @@
 
 *.db
 *.log
+*.html
 
 temp

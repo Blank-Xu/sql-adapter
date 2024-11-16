@@ -18,12 +18,14 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/casbin/casbin/v2/model"
 	"github.com/casbin/casbin/v2/persist"
 )
 
+// the supported for Casbin interfaces
 var (
 	_ persist.Adapter                 = new(Adapter)
 	_ persist.ContextAdapter          = new(Adapter)
@@ -34,6 +36,14 @@ var (
 	_ persist.UpdatableAdapter        = new(Adapter)
 	_ persist.ContextUpdatableAdapter = new(Adapter)
 )
+
+// the supported driver names
+var supportedDriverNames = map[adapterDriverNameIndex][]string{
+	_SQLite:     {"sqlite", "sqlite3", "nrsqlite3"},
+	_MySQL:      {"mysql", "nrmysql"},
+	_PostgreSQL: {"postgres", "pgx", "pq-timeouts", "cloudsql-postgres", "ql", "nrpostgres", "cockroach"},
+	_SQLServer:  {"sqlserver", "azuresql"},
+}
 
 // NewAdapter  the constructor for Adapter.
 // db should connected to database and controlled by user.
@@ -46,6 +56,7 @@ func NewAdapter(db *sql.DB, driverName, tableName string) (*Adapter, error) {
 // db should connected to database and controlled by user.
 // If tableName == "", the Adapter will automatically create a table named "casbin_rule".
 func NewAdapterWithContext(ctx context.Context, db *sql.DB, driverName, tableName string) (*Adapter, error) {
+	// check parameters first
 	if ctx == nil {
 		return nil, errors.New("ctx is nil")
 	}
@@ -54,8 +65,7 @@ func NewAdapterWithContext(ctx context.Context, db *sql.DB, driverName, tableNam
 		return nil, errors.New("db is nil")
 	}
 
-	// check db connection
-	err := db.PingContext(ctx)
+	driverNameIndex, err := getAdapterDriverNameIndex(driverName)
 	if err != nil {
 		return nil, err
 	}
@@ -64,20 +74,41 @@ func NewAdapterWithContext(ctx context.Context, db *sql.DB, driverName, tableNam
 		tableName = defaultTableName
 	}
 
-	d, err := getDao(db, driverName, tableName)
+	dao := newDao(db, driverNameIndex, tableName)
+
+	// check db connection
+	err = db.PingContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if !d.IsTableExist(ctx) {
-		if err = d.CreateTable(ctx); err != nil {
+	// check adapter table
+	if !dao.IsTableExist(ctx) {
+		if err = dao.CreateTable(ctx); err != nil {
 			return nil, err
 		}
 	}
 
-	adapter := Adapter{ctx: ctx, dao: d}
+	return &Adapter{ctx: ctx, dao: dao}, nil
+}
 
-	return &adapter, nil
+func getAdapterDriverNameIndex(driverName string) (adapterDriverNameIndex, error) {
+	for driverNameIndex, drivers := range supportedDriverNames {
+		for _, supportedDriver := range drivers {
+			if driverName == supportedDriver {
+				return driverNameIndex, nil
+			}
+		}
+	}
+
+	switch driverName {
+	case "mssql":
+		return 0, errors.New("driver name mssql not support, please use sqlserver")
+	case "oci8", "ora", "goracle":
+		return 0, errors.New("sqladapter: please checkout 'oracle' branch")
+	default:
+		return 0, fmt.Errorf("unsupported driver name: %s", driverName)
+	}
 }
 
 // Adapter  defines the database adapter for Casbin.
@@ -276,7 +307,7 @@ func (adapter *Adapter) LoadFilteredPolicyCtx(ctx context.Context, model model.M
 
 // IsFiltered  returns true if the loaded policy rules has been filtered.
 func (adapter Adapter) IsFiltered() bool {
-	return adapter.filtered != nil
+	return adapter.IsFilteredCtx(adapter.ctx)
 }
 
 // IsFilteredCtx returns true if the loaded policy has been filtered.
