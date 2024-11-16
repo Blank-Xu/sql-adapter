@@ -20,6 +20,7 @@ import (
 	"testing"
 )
 
+// nolint: funlen,paralleltest
 func TestNewAdapterWithContext(t *testing.T) {
 	type params struct {
 		ctx        context.Context

@@ -25,7 +25,7 @@ import (
 	"github.com/casbin/casbin/v2/persist"
 )
 
-// the supported for Casbin interfaces
+// the supported for Casbin interfaces.
 var (
 	_ persist.Adapter                 = new(Adapter)
 	_ persist.ContextAdapter          = new(Adapter)
@@ -37,7 +37,7 @@ var (
 	_ persist.ContextUpdatableAdapter = new(Adapter)
 )
 
-// the supported driver names
+// the supported driver names.
 var supportedDriverNames = map[adapterDriverNameIndex][]string{
 	_SQLite:     {"sqlite", "sqlite3", "nrsqlite3"},
 	_MySQL:      {"mysql", "nrmysql"},
