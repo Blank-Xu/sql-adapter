@@ -6,7 +6,7 @@ replace github.com/Blank-Xu/sql-adapter => ../../.
 
 require (
 	github.com/Blank-Xu/sql-adapter v1.0.4
-	github.com/casbin/casbin/v2 v2.100.0
+	github.com/casbin/casbin/v2 v2.101.0
 	github.com/go-sql-driver/mysql v1.8.1
 	xorm.io/xorm v1.3.9
 )
