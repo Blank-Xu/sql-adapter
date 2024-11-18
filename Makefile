@@ -83,6 +83,14 @@ test-sqlserver:
 	${call run_e2e_test,sqlserver}
 	@docker stop sqlserver_${TEST_DATABASE_NAME}
 
+test-examples:
+	${call start_mysql}
+	@sleep 10
+	@cd examples/database_sql && go run *.go
+	@cd examples/sqlx && go run *.go
+	@cd examples/gorm && go run *.go
+	@cd examples/xorm && go run *.go
+
 lint:
 	golangci-lint run -v ./...
 
