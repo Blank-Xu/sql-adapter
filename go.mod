@@ -4,5 +4,5 @@ go 1.13
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.7.1 // indirect
-	github.com/casbin/casbin/v2 v2.100.0
+	github.com/casbin/casbin/v2 v2.101.0
 )
