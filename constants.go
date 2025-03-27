@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS %[1]s(
     v5     VARCHAR(255) DEFAULT '' NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_%[1]s ON %[1]s (p_type,v0,v1);`
-	sqlInsertRowPostgreSQL = "INSERT INTO %s (p_type,v0,v1,v2,v3,v4,v5) VALUES ($1,$2,$3,$4,$5,$6,$7)"
+	sqlInsertRowPostgreSQL = "INSERT INTO %s (p_type,v0,v1,v2,v3,v4,v5) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING"
 	sqlUpdateRowPostgreSQL = "UPDATE %s SET p_type=$1,v0=$2,v1=$3,v2=$4,v3=$5,v4=$6,v5=$7 WHERE p_type=$8 AND v0=$9 AND v1=$10 AND v2=$11 AND v3=$12 AND v4=$13 AND v5=$14"
 	sqlDeleteRowPostgreSQL = "DELETE FROM %s WHERE p_type=$1 AND v0=$2 AND v1=$3 AND v2=$4 AND v3=$5 AND v4=$6 AND v5=$7"
 )
