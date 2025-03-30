@@ -60,14 +60,12 @@ jobs:
           - 1433:1433
 
     steps:
-      - name: 00_prepare_db
-        run: |
-          docker cp ./test/init.sqlserver.sh sqlserver:/tmp/init.sqlserver.sh
-          docker exec sqlserver chmod +x /tmp/init.sqlserver.sh
-          docker exec sqlserver /tmp/init.sqlserver.sh
-
-      - name: 01_Checkout_Code
+      - name: 00_Checkout_Code
         uses: actions/checkout@v4
+
+      - name: 01_prepare_DBs
+        run: |
+          docker exec sqlserver /bin/bash < test/init.sqlserver.sh
 
       - name: 02_Install_go_${{ matrix.go }}
         uses: actions/setup-go@v5
