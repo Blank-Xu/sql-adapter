@@ -63,9 +63,9 @@ jobs:
       - name: 00_Checkout_Code
         uses: actions/checkout@v4
 
-      - name: 01_prepare_DBs
+      - name: 01_Prepare_DBs
         run: |
-          docker exec sqlserver /bin/bash < test/init.sqlserver.sh
+          docker exec $(docker ps -q -f ancestor=mcr.microsoft.com/mssql/server:${{ matrix.sqlserver }}) /bin/bash < test/init.sqlserver.sh
 
       - name: 02_Install_go_${{ matrix.go }}
         uses: actions/setup-go@v5
