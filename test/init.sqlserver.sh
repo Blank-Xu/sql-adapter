@@ -10,7 +10,7 @@ i=0
 
 while [[ $STATUS -ne 0 ]] && [[ $i -lt 30 ]]; do
 	i=$i+1
-	sqlcmd -t 1 -U sa -P $SA_PASSWORD -C -Q "select 1" >> /dev/null
+	sqlcmd -t 1 -U sa -P $MSSQL_SA_PASSWORD -C -Q "select 1" >> /dev/null
 	STATUS=$?
 done
 
@@ -36,5 +36,5 @@ GO
 EOF
 )
 
-sqlcmd -S localhost -U sa -P $SA_PASSWORD -C -d master -Q "$INIT_SQL"
+sqlcmd -S localhost -U sa -P $MSSQL_SA_PASSWORD -C -d master -Q "$INIT_SQL"
 echo "---------------- MSSQL CREATE DATABASE $MSSQL_DB SUCCESSFULLY ---------------- "
