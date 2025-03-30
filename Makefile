@@ -40,7 +40,8 @@ define start_sqlserver
 		-e "MSSQL_USER=${TEST_DATABASE_USER}" \
 		-e "MSSQL_PASSWORD=${TEST_DATABASE_PASSWORD}" \
 		-p 1433:${TEST_DATABASE_PORT_SQLSERVER} \
-		-d --rm mcr.microsoft.com/mssql/server:2022-CU15-GDR1-ubuntu-22.04
+		-v ./temp:/var/opt/mssql \
+		-d --rm mcr.microsoft.com/mssql/server:2022-CU18-ubuntu-22.04
 	@sleep 5
 	@docker exec -i sqlserver_${TEST_DATABASE_NAME} /bin/bash < test/init.sqlserver.sh
 endef

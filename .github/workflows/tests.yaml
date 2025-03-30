@@ -16,9 +16,9 @@ jobs:
         os:
           - ubuntu-latest
         go:
+          - '1.24.x'
           - '1.23.x'
           - '1.22.x'
-          - '1.21.x'
         mysql:
           - '8.0'
         postgres:
