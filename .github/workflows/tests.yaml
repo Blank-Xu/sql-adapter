@@ -24,7 +24,7 @@ jobs:
         postgres:
           - '15'
         sqlserver:
-          - 'latest'
+          - '2022-CU18-ubuntu-22.04'
 
     runs-on: ${{ matrix.os }}
 
@@ -49,15 +49,22 @@ jobs:
           - 5432:5432
 
       sqlserver:
-        image: mcmoe/mssqldocker:${{ matrix.sqlserver }}
+        image: mcr.microsoft.com/mssql/server:${{ matrix.sqlserver }}
         env:
           ACCEPT_EULA: "Y"
           MSSQL_DB: ${{ env.TEST_DATABASE_NAME }}
-          SA_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
+          MSSQL_SA_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
           MSSQL_USER: ${{ env.TEST_DATABASE_USER }}
           MSSQL_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
         ports:
           - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"${{ env.TEST_DATABASE_PASSWORD }}\" -Q 'SELECT 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --volume ${{ github.workspace }}/test:/docker-entrypoint-initdb.d
+          --command "/docker-entrypoint-initdb.d/init.sqlserver.sh"
 
     steps:
       - name: 01_Checkout_Code
