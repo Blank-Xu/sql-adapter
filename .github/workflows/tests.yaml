@@ -58,12 +58,6 @@ jobs:
           MSSQL_PASSWORD: ${{ env.TEST_DATABASE_PASSWORD }}
         ports:
           - 1433:1433
-        options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U sa -P \"$MSSQL_SA_PASSWORD\" -Q 'SELECT 1'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
-          --health-start-period 10s
 
     steps:
       - name: 00_prepare_db
