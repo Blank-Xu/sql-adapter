@@ -1,51 +1,63 @@
+version: "2"
 run:
   build-tags:
     - integration
-  timeout: 10m
 linters:
   enable:
-    - dogsled
-    - dupl
-    - gocritic
-    - godot
-    - gofmt
-    - goimports
-    - gosec
-    - misspell
-    - nakedret
-    - perfsprint
-    - paralleltest
-    - stylecheck
-    - tparallel
-    - unconvert
-    - unparam
-    - whitespace
     - contextcheck
     - cyclop
     - decorder
-    # - depguard
+    - dogsled
+    - dupl
     - dupword
-    # - err113
     - errname
     - errorlint
     - exhaustive
     - fatcontext
     - funlen
-    - gci
     - gocritic
+    - godot
+    - gosec
+    - misspell
+    - nakedret
+    - paralleltest
+    - perfsprint
+    - staticcheck
     - tagalign
-linters-settings:
-  perfsprint:
-    errorf: true
-    strconcat: false
-  cyclop:
-    # The maximal code complexity to report.
-    # Default: 10
-    max-complexity: 12
-    # The maximal average package complexity.
-    # If it's higher than 0.0 (float) the check is enabled
-    # Default: 0.0
-    package-average: 0.0
-    # Should ignore tests.
-    # Default: false
-    skip-tests: true
+    - tparallel
+    - unconvert
+    - unparam
+    - whitespace
+  settings:
+    cyclop:
+      max-complexity: 12
+      package-average: 0
+    perfsprint:
+      errorf: true
+      strconcat: false
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - cyclop
+        path: (.+)_test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
