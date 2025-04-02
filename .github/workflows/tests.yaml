@@ -106,6 +106,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
+      - name: Install dependencies
+        run: npm install
       - name: Release
         if: github.event_name == 'push'
         env:
