@@ -1,13 +1,14 @@
 module xorm-example
 
 go 1.21
+toolchain go1.24.1
 
 replace github.com/Blank-Xu/sql-adapter => ../../.
 
 require (
 	github.com/Blank-Xu/sql-adapter v0.0.0-00010101000000-000000000000
 	github.com/casbin/casbin/v2 v2.104.0
-	github.com/go-sql-driver/mysql v1.8.1
+	github.com/go-sql-driver/mysql v1.9.2
 	xorm.io/xorm v1.3.9
 )
 
