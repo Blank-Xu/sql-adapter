@@ -2,6 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/Blank-Xu/sql-adapter)](https://goreportcard.com/report/github.com/Blank-Xu/sql-adapter)
 [![Build Status](https://github.com/Blank-Xu/sql-adapter/actions/workflows/tests.yaml/badge.svg)](https://github.com/Blank-Xu/sql-adapter/actions)
+[![Code Check](https://github.com/Blank-Xu/sql-adapter/actions/workflows/code-check.yml/badge.svg)](https://github.com/Blank-Xu/sql-adapter/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Blank-Xu/sql-adapter/badge.svg?branch=master)](https://coveralls.io/github/Blank-Xu/sql-adapter?branch=master)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/Blank-Xu/sql-adapter)](https://pkg.go.dev/github.com/Blank-Xu/sql-adapter)
 [![Release](https://img.shields.io/github/release/Blank-Xu/sql-adapter.svg)](https://github.com/Blank-Xu/sql-adapter/releases/latest)
