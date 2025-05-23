@@ -1,0 +1,24 @@
+name: Code Check
+
+on: [push, pull_request]
+
+jobs:
+  code-check:
+    name: Vulnerabilities_Check
+    strategy:
+      matrix:
+        os: ["ubuntu-latest"]
+
+    runs-on: ${{ matrix.os }}
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Vulnerabilities_Check
+        uses: golang/govulncheck-action@v1
+        with:
+          check-latest: true
+          go-package: ./...
