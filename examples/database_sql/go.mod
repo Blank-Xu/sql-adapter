@@ -1,13 +1,14 @@
 module sql-example
 
-go 1.21
+go 1.21.0
+
 toolchain go1.24.1
 
 replace github.com/Blank-Xu/sql-adapter => ../../.
 
 require (
 	github.com/Blank-Xu/sql-adapter v0.0.0-00010101000000-000000000000
-	github.com/casbin/casbin/v2 v2.105.0
+	github.com/casbin/casbin/v2 v2.107.0
 	github.com/go-sql-driver/mysql v1.9.2
 )
 
