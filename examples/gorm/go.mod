@@ -7,7 +7,7 @@ replace github.com/Blank-Xu/sql-adapter => ../../.
 require (
 	github.com/Blank-Xu/sql-adapter v0.0.0-00010101000000-000000000000
 	github.com/casbin/casbin/v2 v2.105.0
-	gorm.io/driver/mysql v1.5.7
+	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.30.0
 )
 
