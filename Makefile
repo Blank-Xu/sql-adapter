@@ -87,10 +87,11 @@ test-sqlserver:
 test-examples:
 	${call start_mysql}
 	@sleep 10
-	@cd examples/database_sql && go mod tidy && go run *.go
-	@cd examples/sqlx && go mod tidy && go run *.go
-	@cd examples/gorm && go mod tidy && go run *.go
-	@cd examples/xorm && go mod tidy && go run *.go
+	@cd examples && go mod tidy
+	@cd examples && go run database_sql/*.go
+	@cd examples && go run sqlx/*.go
+	@cd examples && go run gorm/*.go
+	@cd examples && go run xorm/*.go
 
 lint:
 	golangci-lint run -v ./...

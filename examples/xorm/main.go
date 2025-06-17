@@ -20,9 +20,9 @@ const (
 	driverName = "mysql"
 	tableName  = "casbin_rule_example"
 
-	envFile = "../../test/.env"
+	envFile = "../test/.env"
 
-	rbacModelFile = "../../test/testdata/rbac_model.conf"
+	rbacModelFile = "../test/testdata/rbac_model.conf"
 )
 
 var dataSource = func() string {
