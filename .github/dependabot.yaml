@@ -5,7 +5,6 @@ updates:
       - "/"
       - "/test"
       - "/examples"
-    versioning-strategy: lockfile-only
     schedule:
       interval: weekly
   - package-ecosystem: github-actions

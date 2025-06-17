@@ -1,6 +1,6 @@
 module sql-adapter-examples
 
-go 1.21.0
+go 1.23.0
 
 replace github.com/Blank-Xu/sql-adapter => ../.
 
