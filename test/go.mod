@@ -9,7 +9,7 @@ require (
 	github.com/casbin/casbin/v2 v2.120.0
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/lib/pq v1.10.9
-	github.com/microsoft/go-mssqldb v1.9.2
+	github.com/microsoft/go-mssqldb v1.9.3
 	modernc.org/sqlite v1.38.2
 )
 
