@@ -10,7 +10,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/jmoiron/sqlx v1.4.0
 	gorm.io/driver/mysql v1.6.0
-	gorm.io/gorm v1.30.3
+	gorm.io/gorm v1.31.0
 	xorm.io/xorm v1.3.10
 )
 
