@@ -1,11 +1,11 @@
 module sql-adapter-examples
 
-go 1.23.0
+go 1.24.0
 
 replace github.com/Blank-Xu/sql-adapter => ../.
 
 require (
-	github.com/Blank-Xu/sql-adapter v0.0.0-00010101000000-000000000000
+	github.com/Blank-Xu/sql-adapter v0.0.0
 	github.com/casbin/casbin/v2 v2.134.0
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/jmoiron/sqlx v1.4.0
@@ -17,13 +17,13 @@ require (
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.9.1 // indirect
-	github.com/casbin/govaluate v1.9.0 // indirect
+	github.com/casbin/govaluate v1.10.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	xorm.io/builder v0.3.13 // indirect
 )
