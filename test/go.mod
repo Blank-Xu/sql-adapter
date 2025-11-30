@@ -1,6 +1,6 @@
 module github.com/Blank-Xu/sql-adapter-test
 
-go 1.24.0
+go 1.23.0
 
 replace github.com/Blank-Xu/sql-adapter => ../.
 
