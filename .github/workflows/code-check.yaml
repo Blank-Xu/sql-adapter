@@ -33,7 +33,7 @@ jobs:
           make fmt
 
       - name: 04_Lint_Check
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
           version: latest
 
