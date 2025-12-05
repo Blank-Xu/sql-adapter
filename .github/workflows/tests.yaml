@@ -67,7 +67,7 @@ jobs:
           docker exec $(docker ps -q -f ancestor=mcr.microsoft.com/mssql/server:${{ matrix.sqlserver }}) /bin/bash < test/init.sqlserver.sh
 
       - name: 02_Install_go_${{ matrix.go }}
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go }}
 
