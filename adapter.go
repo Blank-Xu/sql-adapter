@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/casbin/casbin/v2/model"
-	"github.com/casbin/casbin/v2/persist"
+	"github.com/casbin/casbin/v3/model"
+	"github.com/casbin/casbin/v3/persist"
 )
 
 // the supported for Casbin interfaces.

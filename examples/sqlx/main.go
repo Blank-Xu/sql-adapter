@@ -9,7 +9,7 @@ import (
 	"time"
 
 	sqladapter "github.com/Blank-Xu/sql-adapter"
-	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v3"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
