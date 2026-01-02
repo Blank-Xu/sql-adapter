@@ -10,7 +10,7 @@
 
 ---
 
-The `sql-adapter` is a `database/sql` adapter for [Casbin v2](https://github.com/casbin/casbin).
+The `sql-adapter` is a `database/sql` adapter for [Casbin v3](https://github.com/casbin/casbin).
 
 With this library, Casbin can load policy lines or save policy lines from supported databases.
 
