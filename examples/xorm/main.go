@@ -11,7 +11,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 
 	sqladapter "github.com/Blank-Xu/sql-adapter"
-	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v3"
 
 	"xorm.io/xorm"
 )
