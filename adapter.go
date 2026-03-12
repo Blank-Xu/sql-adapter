@@ -130,16 +130,18 @@ func (Adapter) loadPolicyLine(line rule, model model.Model) error {
 }
 
 // genArgs generate args from ptype and rule.
+// expects rule to have at most maxParameterCount-1 elements.
+// It fills missing fields with empty strings, and will ignore extra fields.
 func (Adapter) genArgs(ptype string, rule []string) []interface{} {
-	args := make([]interface{}, maxParameterCount)
-	args[0] = ptype
+	args := make([]interface{}, 0, maxParameterCount)
+	args = append(args, ptype)
 
 	for idx := range rule {
-		args[idx+1] = strings.TrimSpace(rule[idx])
+		args = append(args, strings.TrimSpace(rule[idx]))
 	}
 
 	for idx := len(rule) + 1; idx < maxParameterCount; idx++ {
-		args[idx] = ""
+		args = append(args, "")
 	}
 
 	return args
