@@ -8,7 +8,7 @@ require (
 	github.com/Blank-Xu/sql-adapter v0.0.0
 	github.com/casbin/casbin/v3 v3.10.0
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/lib/pq v1.11.1
+	github.com/lib/pq v1.11.2
 	github.com/microsoft/go-mssqldb v1.9.5
 	modernc.org/sqlite v1.46.1
 )
