@@ -1,8 +1,12 @@
 version: "2"
+
 run:
+  timeout: 5m
   build-tags:
     - integration
+
 linters:
+  default: none
   enable:
     - contextcheck
     - cyclop
@@ -28,6 +32,7 @@ linters:
     - unconvert
     - unparam
     - whitespace
+
   settings:
     cyclop:
       max-complexity: 12
@@ -35,6 +40,7 @@ linters:
     perfsprint:
       errorf: true
       strconcat: false
+
   exclusions:
     generated: lax
     presets:
@@ -50,6 +56,7 @@ linters:
       - third_party$
       - builtin$
       - examples$
+
 formatters:
   enable:
     - gci
