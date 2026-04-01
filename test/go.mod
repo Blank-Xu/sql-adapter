@@ -1,6 +1,6 @@
 module github.com/Blank-Xu/sql-adapter-test
 
-go 1.25.0
+go 1.25.7
 
 replace github.com/Blank-Xu/sql-adapter => ../.
 
@@ -10,7 +10,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/lib/pq v1.11.2
 	github.com/microsoft/go-mssqldb v1.9.8
-	modernc.org/sqlite v1.46.1
+	modernc.org/sqlite v1.48.0
 )
 
 require (
