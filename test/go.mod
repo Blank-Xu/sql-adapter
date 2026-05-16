@@ -1,13 +1,13 @@
 module github.com/Blank-Xu/sql-adapter-test
 
-go 1.25.0
+go 1.25.7
 
 replace github.com/Blank-Xu/sql-adapter => ../.
 
 require (
 	github.com/Blank-Xu/sql-adapter v0.0.0
 	github.com/casbin/casbin/v3 v3.10.0
-	github.com/go-sql-driver/mysql v1.9.3
+	github.com/go-sql-driver/mysql v1.10.0
 	github.com/lib/pq v1.11.2
 	github.com/microsoft/go-mssqldb v1.9.8
 	modernc.org/sqlite v1.46.1
