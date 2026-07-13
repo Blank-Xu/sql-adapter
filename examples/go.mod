@@ -11,7 +11,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.2
-	xorm.io/xorm v1.3.11
+	xorm.io/xorm v1.4.1
 )
 
 require (
